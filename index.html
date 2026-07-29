@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Awesome Gemini Notebook Slides Templates</title>
+<style>
+  :root {
+    --bg: #12100d;
+    --panel: #1c1915;
+    --paper: #e8e0d0;
+    --paper-dim: #b8ae99;
+    --accent: #e0a82e;
+    --code-bg: #14120f;
+    --border: #3a352c;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--bg);
+    color: var(--paper);
+    font-family: "Courier New", Courier, monospace;
+  }
+
+  /* ---------- Deck ---------- */
+  #deck { position: relative; height: 100vh; }
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    padding: 28px 32px 72px;
+    overflow: hidden;
+  }
+  .slide.active { display: flex; gap: 28px; }
+
+  /* Cover slide */
+  .slide.cover {
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+  }
+  .slide.cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .cover-hint {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,.7);
+    border: 1px solid var(--border);
+    padding: 8px 18px;
+    font-size: 13px;
+    color: var(--paper-dim);
+    border-radius: 20px;
+  }
+
+  /* Template slides: image half + code half */
+  .half {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .half.images { gap: 14px; overflow-y: auto; }
+  .half.images img {
+    max-width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #000;
+  }
+  .slide-title { font-size: 22px; color: var(--accent); margin-bottom: 4px; }
+  .slide-group {
+    font-size: 11px;
+    color: var(--paper-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .slide-desc { font-size: 13px; color: var(--paper-dim); margin-bottom: 14px; line-height: 1.5; }
+
+  .code-box {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+  }
+  .code-box .code-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--paper-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .copy-btn {
+    background: var(--accent);
+    color: #12100d;
+    border: none;
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .copy-btn:hover { filter: brightness(1.1); }
+  .code-box pre {
+    flex: 1;
+    overflow: auto;               /* scroll interno — não rola a página */
+    padding: 14px;
+    font-size: 12.5px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: #d6cdb8;
+  }
+
+  /* Sources slide */
+  .slide.sources { flex-direction: column; justify-content: center; align-items: center; gap: 18px; }
+  .slide.sources a { color: var(--accent); font-size: 15px; word-break: break-all; }
+  .slide.sources h2 { color: var(--paper); font-size: 26px; margin-bottom: 8px; }
+
+  /* ---------- Bottom controls (overlay) ---------- */
+  #controls {
+    position: fixed;
+    bottom: 14px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    z-index: 10;
+  }
+  #controls .counter { font-size: 12px; color: var(--paper-dim); margin-right: 4px; }
+  .arrow-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: rgba(28, 25, 21, .85);
+    color: var(--accent);
+    font-size: 18px;
+    cursor: pointer;
+  }
+  .arrow-btn:hover { background: #2b261d; }
+
+  @media (max-width: 900px) {
+    .slide.active { flex-direction: column; overflow-y: auto; }
+    .half { width: 100%; }
+    .code-box pre { max-height: 50vh; }
+  }
+</style>
+</head>
+<body>
+
+<main id="deck"></main>
+
+<div id="controls">
+  <span class="counter" id="counter"></span>
+  <button class="arrow-btn" id="prev" title="Previous (←)">←</button>
+  <button class="arrow-btn" id="next" title="Next (→)">→</button>
+</div>
+
+<script>
+// ============================================================
+// TEMPLATES — para adicionar um novo template no futuro, basta
+// acrescentar um objeto a este array. O site renderiza sozinho.
+// { group, title, desc, images: ["assets/..jpg"], prompt: `...` }
+// ============================================================
+const TEMPLATES = [
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "1. Mission Control",
+    "desc": "Declassified 1969 NASA flight documentation. Your deck as a mission that cannot fail.",
+    "images": [
+      "assets/notion-01-mission-control.png"
+    ],
+    "prompt": "STYLE: Mission Control. This deck is declassified 1969 NASA Apollo flight documentation. Confident, procedural, zero decoration that does not serve the mission.\n\nPALETTE: Aged paper cream #F4F1E8 background. Ink black #1A1A1A text. Signal red #D0312D reserved for critical numbers, GO flags, and warnings. Caution amber #E8A33D for secondary callouts only.\n\nTYPE: Headlines in condensed industrial sans-serif, all caps, huge, like stenciled hardware labels. Body in typewriter monospace. Every slide carries a procedure label like STEP 03 OF 10. Headline to body size ratio at least 8:1.\n\nIMAGES: All photos duotone in black and cream like archival press photos. Diagrams as technical line art with leader lines and numbered part labels (FIG. 1, FIG. 2).\n\nVOICE: Procedure speak. Verbs first, zero adjectives, radio-call rhythm: \"IGNITION. CONFIRMED.\" Headlines 5 words max. Callouts read like a flight checklist.\n\nLAYOUT MENU: Launch cover with the deck title in a circular mission patch. Countdown agenda. GO / NO-GO columns for any comparison. Giant instrument readouts for data. A dotted trajectory arc for timelines. MISSION COMPLETE closer with a one-line debrief.\n\nNEVER: gradients, rounded corners, color stock photos, soft shadows, decorative icons.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: documentation from a mission that cannot fail."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "2. Cold Case",
+    "desc": "A detective's evidence wall in a 1970s noir thriller. Pinned, taped, and connected with red string.",
+    "images": [
+      "assets/notion-02-cold-case.png"
+    ],
+    "prompt": "STYLE: Cold Case. This deck is a detective's evidence wall in a 1970s noir thriller. Every slide looks assembled by hand at 2 a.m.\n\nPALETTE: Charcoal corkboard #2B2B2B background. Manila folder #E8DCC0 for cards and documents. Typewriter black #1A1A1A text. Evidence red #C0392B for string, stamps, and circled clues.\n\nTYPE: Body in typewriter monospace on taped paper scraps. Headers as rubber-stamp lettering at least 5x body size: CONFIDENTIAL, EXHIBIT A, CASE NO. 042. Sparse handwritten annotations in chalk white or red pen.\n\nIMAGES: Every photo printed as a pinned polaroid or 4x6 print, slightly rotated, black and white, heavy grain. Tape and pushpins visible.\n\nVOICE: Case-file speak. Terse typed fragments with dates and times: \"MARCH 4. INVOICE UNPAID. AGAIN.\" One scrawled margin question per deck, like \"who approved this?\"\n\nLAYOUT MENU: Classified folder cover with a case number. A suspect board of pinned concept cards joined by red string. Numbered exhibits for lists. An index-card timeline. Typed witness statements for quotes. CASE CLOSED closer with the verdict in one line.\n\nNEVER: clean grids, bright colors, sans-serif body text, cheerful icons, flat corporate design.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: if it looks tidy, it is wrong. If it looks obsessive, it is right."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "3. Trailhead",
+    "desc": "1930s national park posters. Flat screen-print inks, monumental calm.",
+    "images": [
+      "assets/notion-03-trailhead.png"
+    ],
+    "prompt": "STYLE: Trailhead. This deck is a series of 1930s WPA national park posters. Flat screen-print inks, monumental calm.\n\nPALETTE: Cream sky #F2E8D5. Pine green #1F4E3D. Rust orange #C65D2E. Mustard #D9A441. Maximum four flat inks per slide, no blends.\n\nTYPE: Headlines in tall geometric display caps with a hand-set letterpress feel, filling the top third of the slide. Small labels in wide-tracked caps like park signage. Treat the title like a park name and the subtitle like a founding date.\n\nIMAGES: No photography. Flat layered landscape illustration with silhouette depth: dark foreground band, mid band, light background band. Visible screen-print grain and slight ink misregistration.\n\nVOICE: Park-sign speak. Proper nouns, elevations, and distances: \"ESTABLISHED 2026. SUMMIT: $2M.\" Headlines 6 words max, stated like landmarks.\n\nLAYOUT MENU: Poster cover over a layered vista. One bold statement per scenic overlook slide. A dotted trail map for timelines and steps. A labeled field guide for concepts. A mountain elevation profile for data. Sunset closer.\n\nNEVER: photos, thin fonts, pure white backgrounds, gradients except banded sky tones, drop shadows.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: every slide worth framing."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "4. Patent Pending",
+    "desc": "Nineteenth century patent drawings as cyanotype blueprints. Every idea is a patented machine.",
+    "images": [
+      "assets/notion-04-patent-pending.png"
+    ],
+    "prompt": "STYLE: Patent Pending. This deck is a set of 19th century patent drawings printed as cyanotype blueprints. Every idea is a patented machine.\n\nPALETTE: Prussian blue #12355B background with a faint paper texture. All line work and text in white #FFFFFF. Approval-stamp red #C0392B, used at most once per slide.\n\nTYPE: Headlines in engineer's hand-lettered caps at 10x the size of figure labels. Serif figure labels (FIG. 1, FIG. 2). Every slide carries a title block in the bottom right corner like a real drawing sheet: title, sheet number, date.\n\nIMAGES: Everything drawn as white technical line art. Exploded views, cross sections, dimension lines with arrows, hatching for shading. No fills, no photos.\n\nVOICE: Patent claims. Numbered, dry, precise: \"CLAIM 1: A method for closing the books in one hour.\" No superlatives anywhere.\n\nLAYOUT MENU: Title block cover (SHEET 1 OF N). The core idea as one exploded diagram with numbered callouts. A close-up mechanism figure per feature. Prior art versus new design for any comparison. An APPROVED closer with a patent number.\n\nNEVER: photographs, filled solid shapes, more than one accent color, rounded modern UI, drop shadows.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: precise enough to build from."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "5. Gold Standard",
+    "desc": "1925 Art Deco. Grand hotel signage, engraved invitations, champagne.",
+    "images": [
+      "assets/notion-05-gold-standard.png"
+    ],
+    "prompt": "STYLE: Gold Standard. This deck is 1925 Art Deco: grand hotel signage, engraved invitations, champagne. Expensive and permanent.\n\nPALETTE: Near black #0F0F0F background. Champagne gold #D4AF37 for type, lines, and ornament. Ivory #F5EFE0 body text. Gold is line work and lettering, never large filled areas.\n\nTYPE: Headlines in tall geometric Deco display caps with letters 3x taller than wide, thin inline strokes. Body in wide-tracked small caps at 1/8 the headline size. Slides numbered in gold Roman numerals.\n\nIMAGES: Geometric sunbursts, stepped ziggurat frames, fan motifs, fine symmetrical borders. Photos only as black and gold duotone inside geometric frames.\n\nVOICE: Engraved invitation. Few words, formal, certain: \"THE PROGRAM FOLLOWS.\" Headlines 4 words max. Nothing pleads.\n\nLAYOUT MENU: Marquee cover in an ornamental frame with a sunburst crown. One centered line per grand statement slide. Roman numeral section breaks. Mirrored panels for comparisons. A gold constellation for data. Final bow closer in the grandest frame of the deck.\n\nNEVER: bright primary colors, organic blobby shapes, casual or handwritten fonts, drop shadows, clutter.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: engraved, not printed."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "6. Booster Pack",
+    "desc": "A collectible trading card game. Every concept is a card with stats and rarity.",
+    "images": [
+      "assets/notion-06-booster-pack.png"
+    ],
+    "prompt": "STYLE: Booster Pack. This deck is a collectible trading card game. Every concept is a card with art, stats, and rarity.\n\nPALETTE: Deep navy table felt #14213D background. Card frame gold #FCA311. White card faces. Rarity colors: gray for common, blue for rare, purple for epic, orange for legendary.\n\nTYPE: Card names in a bold fantasy serif. Stat numbers in the card corners at 4x body size. One line of small italic flavor text at the bottom of each card.\n\nIMAGES: Each concept gets illustrated card art inside its frame. The single most important idea in the deck gets a holographic foil treatment. Cards sit on the felt, sometimes fanned.\n\nVOICE: Card-game speak. Names in caps, stats as facts, flavor text in italics like an overheard quote: \"Runs the whole board without touching a piece.\"\n\nLAYOUT MENU: Pack-opening cover. The core idea as a full-slide legendary card with maxed stats. Three related points as a fanned hand. Comparisons as a stat duel between two cards. Roadmaps as a binder page grid. Full-set closer showing every card in the deck.\n\nCONTENT RULE: every concept gets stats (cost, power, rarity) and one line of flavor text written like a quote.\n\nNEVER: realistic photography, corporate charts, thin minimalist type, empty white space.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: people should want to collect the whole set."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "7. Major Arcana",
+    "desc": "A hand-illustrated tarot deck. Every concept becomes a named card.",
+    "images": [
+      "assets/notion-07-major-arcana.png"
+    ],
+    "prompt": "STYLE: Major Arcana. This deck is a hand-illustrated tarot deck, woodcut line work with modern gold foil. Every concept becomes a named card.\n\nPALETTE: Midnight indigo #1B1B3A background. Bone #EDE6D6 card faces. Gold foil #C9A227 for borders, stars, and titles. Deep red #7A2E2E used rarely, for warnings only.\n\nTYPE: Card titles in an elegant serif with small caps, set in a banner filling the bottom sixth of each card. Roman numerals at the top. Body text oracle-short, never more than 2 lines.\n\nIMAGES: Symbolic line illustration with fine hatching: hands, eyes, moons, towers, laurels, keys. Every concept drawn as its card.\n\nVOICE: Oracle lines. Second person, present tense, slightly ominous: \"The bottleneck was never the market.\" No exclamation points, no hedging.\n\nNAMING RULE: rename each concept as a card: THE BOTTLENECK, THE OPERATOR, THE PIVOT.\n\nLAYOUT MENU: Ornamental card-back cover. The central idea as a single full-slide card. Timelines as a past, present, and future spread. Comparisons as upright versus reversed. Data as a constellation wheel. A closing reading with the full spread and a one-line fate.\n\nNEVER: photographs, neon colors, drop shadows, cartoon mysticism, clip art.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: the deck knows something you do not."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "8. Green Terminal",
+    "desc": "A 1980s phosphor CRT session on a mainframe. Monospace everything.",
+    "images": [
+      "assets/notion-08-green-terminal.png"
+    ],
+    "prompt": "STYLE: Green Terminal. This deck is a 1980s phosphor CRT terminal session on a mainframe. You found the machine that runs everything.\n\nPALETTE: Near-black screen #050505. Phosphor green #33FF33 for primary text. Dim green #1E7A1E for secondary text and borders. Alert amber #FFB000 allowed exactly once in the whole deck, on the most important number.\n\nTYPE: Monospace only, one font family for everything, headlines at 3x body size. Headers inside ASCII box-drawing frames. Key statements prefixed with a command prompt like \"> \". A blinking block cursor ends the final line of each slide.\n\nIMAGES: No photos. Diagrams as ASCII art. Subtle scanline overlay, slight screen-edge glow.\n\nVOICE: Machine output. Lowercase commands, uppercase results, zero marketing words: \"> run payroll ... DONE 00:04:12\". The system never explains itself twice.\n\nLAYOUT MENU: Boot-log cover that resolves into the title. Each big idea as a typed command followed by its result. Structures as a file tree. Comparisons as a diff, removed lines dim with minus signs, added lines bright with plus signs. Data as ASCII bar blocks. SESSION TERMINATED closer.\n\nNEVER: photos, modern flat icons, rounded UI, white backgrounds, anti-aliased polish.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: access you were not supposed to have."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "9. Field Notes",
+    "desc": "A Victorian naturalist's expedition journal. Every idea is a discovered species.",
+    "images": [
+      "assets/notion-09-field-notes.png"
+    ],
+    "prompt": "STYLE: Field Notes. This deck is a Victorian naturalist's expedition journal. Inked specimens, watercolor washes, careful labels. Every idea is a discovered species.\n\nPALETTE: Aged paper #EFE6D0 background. Ink brown #3E2F1C text and line work. Botanical green #5B7248 and muted terracotta #A9673F as watercolor washes only.\n\nTYPE: Observations in an elegant serif with true italics. Hand-lettered specimen labels with Latin-flavored names in italics beneath, at half body size. Margin notes smaller still. Plate numbers on every slide (PLATE VII).\n\nIMAGES: Hand-inked scientific illustration with light watercolor wash. Specimens pinned or taped to the page. Dotted annotation lines from labels to parts.\n\nVOICE: Observation log. Measured, curious, faintly delighted: \"Observed: the founder performs 41 distinct tasks daily. Remarkable, and unsustainable.\" Dates welcome.\n\nLAYOUT MENU: Leather journal cover with a brass title plate. Each concept as a drawn and labeled specimen plate. Timelines as a dotted migration route across a sepia map. Systems as a dissection diagram with labeled parts. Data in a hand-ruled table. Expedition log closer.\n\nNEVER: photography, pure white backgrounds, sans-serif headlines, neon color, modern charts.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: patient, curious, certain."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "10. Flat-Pack",
+    "desc": "A wordless furniture assembly manual. If a diagram cannot explain it, it gets cut.",
+    "images": [
+      "assets/notion-10-flat-pack.png"
+    ],
+    "prompt": "STYLE: Flat-Pack. This deck is a wordless furniture assembly manual. If a diagram cannot explain it, it gets cut.\n\nPALETTE: Pure white #FFFFFF background. Instruction black #1A1A1A line work. Highlight yellow #FFD100 only on the exact part or step that matters.\n\nTYPE: Almost none. Step numbers fill a third of each slide, the largest element on it. Captions under eight words. Only the cover gets a headline, written like a product model number.\n\nIMAGES: Flat 2D instruction-manual line illustration. Isometric parts, motion arrows, dotted alignment lines, and a round-headed line-figure person demonstrating actions. Check and X panels for right versus wrong.\n\nVOICE: Silence. Numbers, arrows, and glyphs carry the argument. Where a caption is unavoidable, eight words or fewer, no verbs of persuasion.\n\nLAYOUT MENU: Box-art cover with the title as a model number, like AIOS-8. A parts list with quantities (x1, x2, x4). One numbered assembly step per slide. Wrong versus right as an X panel and a check panel. An exploded view of the whole system. DONE closer with the little line figure celebrating.\n\nNEVER: paragraphs, photography, gradients, decorative fonts, more than eight words on any slide after the cover.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: a person who reads no English could still follow the argument."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "11. Pop Art",
+    "desc": "1960s comic-book pop art. Ben-Day dots, thick outlines, halftone drama.",
+    "images": [
+      "assets/notion-11-pop-art.png"
+    ],
+    "prompt": "STYLE: Pop Art. This deck is 1960s comic-book pop art. Ben-Day dots, thick black outlines, halftone drama. Every business fact is a panel climax.\n\nPALETTE: Newsprint off-white #F7F2E7 background. Primary red #E23A2E, comic yellow #F7D038, process blue #2A6BD4. Black outlines on everything. Ben-Day dot fills for shading.\n\nTYPE: Comic display caps with thick black outlines, headlines filling 30% of the slide. Hand-lettered caption boxes. Sound-effect words inside exploding starbursts. Headlines 5 words max.\n\nIMAGES: Everything illustrated in comic style: thick outlines, flat fills, Ben-Day dot shading, dramatic crops of eyes, hands, and phones. No photos.\n\nVOICE: Melodrama. Every stat is a gasp: \"SHE AUTOMATED THE ENTIRE PIPELINE!\" Caption boxes narrate like a serial: \"Meanwhile, back at the office...\"\n\nLAYOUT MENU: Comic book cover with issue number and a 10-cent price tag. Each big idea as a single-panel splash with a speech bubble. Timelines as a panel strip. Comparisons as facing panels labeled BEFORE and AFTER. Data inside a starburst (\"300%!\"). TO BE CONTINUED closer.\n\nNEVER: gradients, photography, thin elegant fonts, muted colors, empty backgrounds.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: a comic you want to keep reading."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "12. Front Page",
+    "desc": "A 1929 broadsheet newspaper front page. EXTRA! energy.",
+    "images": [
+      "assets/notion-12-front-page.png"
+    ],
+    "prompt": "STYLE: Front Page. This deck is a 1929 broadsheet newspaper front page. Metal type, column rules, halftone photos, EXTRA! energy.\n\nPALETTE: Newsprint #F4EFE4 background. Ink black #1C1A17 for everything. Rubber-stamp red #B3382C only for the EXTRA banner and one circled number per deck.\n\nTYPE: Masthead in blackletter. Headlines in condensed wood-type caps stacked in decks (huge line, smaller line, smaller line), filling the top 30% of the slide. Body justified in narrow columns with rules between them.\n\nIMAGES: Photos as coarse halftone engravings with captions beneath. Hand-drawn column dividers and ornament rules.\n\nVOICE: Headline-ese. No articles, present tense, verbs first: \"FOUNDER AUTOMATES BOOKS, SAVES 12 HOURS.\" Subheads carry the wry detail. Datelines on every story.\n\nLAYOUT MENU: Full front page cover with masthead, date line, and price. Each big idea as a lead story with a stacked headline deck. Timelines as a column of dated dispatches. Comparisons as dueling columns. Data in a boxed BY THE NUMBERS ledger. Closer as a classified-ads page with one listing circled in red.\n\nNEVER: color photos, sans-serif headlines, generous white space, modern icons, rounded corners.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: worth shouting on a street corner."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "13. Bauhaus",
+    "desc": "A 1923 exhibition poster. The circle, triangle, and square do the explaining.",
+    "images": [
+      "assets/notion-13-bauhaus.png"
+    ],
+    "prompt": "STYLE: Bauhaus. This deck is a 1923 Bauhaus exhibition poster. Geometry as ideology: the circle, triangle, and square do the explaining.\n\nPALETTE: Warm paper #EDE6DA background. Bauhaus red #D13F31, yellow #E8B93C, blue #27548D, black #1B1B1B. Maximum four colors on any slide.\n\nTYPE: Geometric sans caps. Type set on one diagonal per slide (30 or 45 degrees), never more. Single oversized letters used as compositional elements at 10x body size.\n\nIMAGES: None. Every concept becomes a composition of circles, triangles, squares, bars, and rules. Each recurring concept keeps its geometric emblem across the deck.\n\nVOICE: Manifesto. Short declarations, no hedging, 8 words max per line: \"Form follows the workflow.\"\n\nLAYOUT MENU: Exhibition poster cover with one big circle and an angled title. Each big idea as one shape plus one declaration. Processes as connected geometric sequences. Comparisons as circle versus square. Data as proportional shapes, size equals value. Closer with all the deck's shapes assembled into one composition.\n\nNEVER: photos, ornament, script fonts, drop shadows, more than one diagonal per slide.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: it could hang in a museum and still run a workshop."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "14. Floating World",
+    "desc": "An Edo-period Japanese woodblock print series. Carved lines, layered flat color.",
+    "images": [
+      "assets/notion-14-floating-world.png"
+    ],
+    "prompt": "STYLE: Floating World. This deck is an Edo-period Japanese woodblock print series. Carved linework, layered flat color, printed on washi paper.\n\nPALETTE: Washi cream #F1E8D2 background. Prussian indigo #274B6D as the dominant ink. Sumi ink #2B2620 for line work. Vermilion #C43D2F only as a small artist's seal, once per slide.\n\nTYPE: Brush-influenced serif headlines, 6x body size. Captions inside vertical cartouche boxes in the corners. A small red seal stamp on every slide.\n\nIMAGES: Everything as woodblock illustration: carved outlines, flat layered color, stylized waves, clouds, and mountains. Visible paper grain. No photos.\n\nVOICE: Quiet and concrete, like a print title: \"Revenue crossing the narrow strait.\" Headlines 7 words max. No exclamation points anywhere.\n\nLAYOUT MENU: Cover print with a title cartouche and seal. Each big idea as one scene with a poetic title. Timelines as a journey road with numbered stations. Comparisons as two facing prints. Data as stylized waves rising to different heights. Sunset print closer with the seal set large.\n\nNEVER: photography, neon color, 3D depth, dense text blocks, western clip art.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: calm, carved, permanent."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "15. Outrun",
+    "desc": "A 1985 synthwave album cover. Neon grid horizon, chrome sunset.",
+    "images": [
+      "assets/notion-15-outrun.png"
+    ],
+    "prompt": "STYLE: Outrun. This deck is a 1985 synthwave album cover. Neon grid horizon, chrome sunset, VHS glow. The future as the 80s imagined it.\n\nPALETTE: Deep purple-black #140A2E background. Hot magenta #FF2E97 and cyan #29D9FF for neon lines and type. Sunset orange #FF8C42 only inside the striped sun.\n\nTYPE: Chrome display caps with an italic slant for headlines, 4 words max, at 8x label size. Labels in thin wide-tracked caps. A subtle neon glow on headlines only.\n\nIMAGES: No photos. Wireframe landscapes, gridded ground planes receding to the horizon, a striped setting sun, palm and mountain silhouettes.\n\nVOICE: Big and cinematic, verbs of speed: \"OUTRUN THE BUSYWORK.\" Labels whisper the details in thin caps. Numbers read like speedometer readings.\n\nLAYOUT MENU: Cover with the striped sun over the grid horizon. Big ideas as billboard text floating above the grid. Timelines as the grid road with mile markers. Comparisons as a split screen, sunset versus night. Data as neon equalizer bars. Closer driving into the sun with one final line.\n\nNEVER: daylight scenes, paper textures, serif body text, corporate charts, muted tones.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: it should hum."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "16. Illuminated",
+    "desc": "A medieval illuminated manuscript. Vellum, gold leaf, beasts in the margins.",
+    "images": [
+      "assets/notion-16-illuminated.png"
+    ],
+    "prompt": "STYLE: Illuminated. This deck is a medieval illuminated manuscript. Vellum, gold leaf, drop caps, and small beasts in the margins.\n\nPALETTE: Vellum #F0E6CF background. Iron-gall ink #2E2418 for text. Lapis blue #27447C for frames and robes. Gold leaf #C9A227 for drop caps, halos, and borders.\n\nTYPE: Blackletter display for titles. Humanist serif for body. Every section opens with an illuminated drop cap at least 4 body-lines tall, set in a gold and lapis box.\n\nIMAGES: Hand-inked miniature paintings inside bordered frames. Vine-and-leaf border ornament. Small marginalia creatures (a snail, a fox, a dragon) reacting to the content.\n\nVOICE: Chronicle. Solemn with a straight face: \"Herein is recorded the taming of the inbox.\" No modern slang, no abbreviations.\n\nLAYOUT MENU: Carpet-page cover with the title in a gold frame. Each big idea as a miniature painting with a drop-cap paragraph. Processes as a pilgrim's path across a bordered map. Comparisons as facing folios. Data as an abbey ledger with inked tallies. Colophon closer with a scribe's sign-off line.\n\nNEVER: photography, sans-serif type, flat minimalism, neon color, empty margins (margins carry ornament).\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: it took someone a winter to make."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "17. Cut + Paste",
+    "desc": "A 1977 punk zine. Xeroxed, stapled, glued together at midnight.",
+    "images": [
+      "assets/notion-17-cut-paste.png"
+    ],
+    "prompt": "STYLE: Cut + Paste. This deck is a 1977 punk zine. Xeroxed, stapled, glued together at midnight.\n\nPALETTE: Photocopy white #F2F0EC background. Toner black #191919. One shocking pink #FF3EA5 applied like spray paint, slightly misregistered.\n\nTYPE: Ransom-note headlines, letters cut from different papers at wildly mixed sizes (biggest letter 3x the smallest in the same word). Typewriter body text. Handwritten scrawl for annotations. Nothing sits straight.\n\nIMAGES: High-contrast photocopied imagery, torn edges, visible tape, safety pins. At least one crossed-out word per deck, corrected in scrawl.\n\nVOICE: Blunt, anti-polish, a little rude to the status quo: \"YOUR MEETINGS ARE NOISE.\" Headlines 5 words max. No corporate euphemisms survive.\n\nLAYOUT MENU: Zine cover with a taped-on title. Big ideas as full-page photocopy collages. Lists as stapled scraps. Comparisons as a THEM versus US spread. Data as hand-scrawled tally marks. Back-page closer with one scrawled manifesto line.\n\nNEVER: clean grids, gradients, corporate blue, stock photos, symmetry.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: photocopied at midnight, out by morning."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "18. Rose Window",
+    "desc": "Gothic cathedral stained glass. A story told in glass panels.",
+    "images": [
+      "assets/notion-18-rose-window.png"
+    ],
+    "prompt": "STYLE: Rose Window. This deck is gothic cathedral stained glass. Lead lines, jewel light, a story told in glass panels.\n\nPALETTE: Stone charcoal #26232A background. Glass jewels: ruby #A62639, cobalt #2D4B9A, amber #D9A441, emerald #2E6B4F. Thick black lead lines between every glass shape. Glass glows as if lit from behind.\n\nTYPE: Carved serif caps for titles, set on stone plaques below the glass at 1/6 the window's height. Small caps for panel labels.\n\nIMAGES: Every concept as a stained-glass panel: figures and objects simplified into leaded shapes, radial symmetry for the biggest moments.\n\nVOICE: Plaque inscriptions. Short, reverent, plain: \"HERE THE FOUNDER RESTED. THE SYSTEM DID NOT.\" Headlines 8 words max.\n\nLAYOUT MENU: Full rose window cover with the title on stone. Each big idea as a single tall lancet window. Processes as a row of narrative panels read left to right. Comparisons as two windows in dusk and dawn light. Data as a rose window with segments sized by value. Closer with light falling through onto one final line.\n\nNEVER: photography, white backgrounds, thin gray minimalism, modern icons, flat unlit color.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: lit from behind."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "19. Storybook",
+    "desc": "A 1950s children's picture book. One gentle lesson per page.",
+    "images": [
+      "assets/notion-19-storybook.png"
+    ],
+    "prompt": "STYLE: Storybook. This deck is a 1950s children's picture book. Gouache and crayon, rounded shapes, one gentle lesson per page.\n\nPALETTE: Cream page #F7EFD9 background. Tomato #D96A4B, teal #4E8F7B, sunshine #E9B94F for the world. Ink brown #4A3A2A for text.\n\nTYPE: Friendly rounded serif for story text, generous size, max 2 sentences per slide. Hand-lettered style for the occasional exclamation. Page numbers in a corner sun or cloud.\n\nIMAGES: Gouache-textured illustration with visible brush grain. Round, warm characters. The business drawn as a little town or workshop. One small recurring animal companion appears on every slide, reacting.\n\nVOICE: Bedtime story. Simple words, warm cadence: \"Once there was a founder who did everything herself.\" One lesson per page, never a lecture.\n\nLAYOUT MENU: Cloth book cover with the title in a sun. Each big idea as a full-page scene with one story line. Processes as a winding path through town. Comparisons as a rainy page and a sunny page. Data as stacked apples or balloons. THE END closer with the companion asleep.\n\nNEVER: photography, corporate charts, sharp corners, jargon, more than 25 words on a page.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: readable aloud to a five-year-old, true for a CEO."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "20. Chalkboard",
+    "desc": "A physics lecture blackboard at the end of a brilliant class.",
+    "images": [
+      "assets/notion-20-chalkboard.png"
+    ],
+    "prompt": "STYLE: Chalkboard. This deck is a physics lecture hall blackboard at the end of a brilliant class. Chalk dust, hand-drawn diagrams, boxed conclusions.\n\nPALETTE: Slate green-black #223330 background with faint eraser smudges. Chalk white #F2F0E4 for everything. Yellow chalk #E8D44D for underlines and boxes. Pink chalk #E8A0A8 once per deck.\n\nTYPE: Hand-lettered chalk print for everything, headlines 4x body size and underlined twice. Key results boxed in hand-drawn chalk rectangles. Nothing typeset.\n\nIMAGES: Chalk line diagrams: arrows, curves, stick figures, annotated sketches. Everything looks drawn live during the lecture, slightly imperfect.\n\nVOICE: The great teacher. A question, then the answer: \"Why does this break? Watch.\" Equations welcome: \"Time saved = tasks x trust.\" No jargon without a sketch beside it.\n\nLAYOUT MENU: Board cover with the course title and date chalked in a corner. Each big idea as a boxed theorem with its sketch. Processes as numbered chalk steps joined by arrows. Comparisons as two columns split by a chalk line. Data as a hand-drawn curve with the key point circled. Closer with the board erased except one boxed line.\n\nNEVER: perfect vector shapes, photography, typeset-looking fonts, saturated bright colors, clean edges.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: the class photographs the board before leaving."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "21. Boy Band",
+    "desc": "1990s bubblegum pop. The album drop, the fan magazine, the countdown show.",
+    "images": [
+      "assets/notion-21-boy-band.png"
+    ],
+    "prompt": "STYLE: Boy Band. This deck is 1990s bubblegum pop: the album drop, the fan magazine, the Saturday countdown show. Loud, glossy, and completely sure of itself.\n\nPALETTE: Teal #1FB6B2 and grape purple #7B4BC8 for color blocks. Bubblegum pink #FF5FA2 and sunshine yellow #FFD23F for shapes and highlights. Black #111111 only for outlines and offset type shadows.\n\nTYPE: Chunky rounded display caps with a hard offset drop shadow (shifted down and right, no blur), tilted 2 to 5 degrees. Headlines 6 words max at 5x body size. Body in a clean rounded sans.\n\nIMAGES: Photos in tilted Polaroid and CD-booklet frames with thick white borders. Memphis confetti behind everything: squiggles, zigzags, triangles, dots. Cassette and CD motifs as recurring furniture.\n\nVOICE: Chart countdown hype. Every point announced like a hit single: \"NUMBER ONE WITH A BULLET.\" This is the one deck where superlatives are legal.\n\nLAYOUT MENU: Album cover opener with the deck title as the album name and a NEW sticker. Track list agenda, each section a track with a runtime. Side A versus Side B for comparisons. Chart countdown for rankings and data, with up and down arrows. Liner notes for details and credits. Fan club closer with a join line.\n\nNEVER: muted palettes, serif fonts, minimalism, corporate charts, untilted photos.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: your business just went platinum."
+  },
+  {
+    "group": "The Gemini Notebook Style Pack",
+    "title": "22. Insert Coin",
+    "desc": "A 1985 arcade cabinet. Pixel sprites, level maps, boss fights.",
+    "images": [
+      "assets/notion-22-insert-coin.png"
+    ],
+    "prompt": "STYLE: Insert Coin. This deck is a 1985 arcade cabinet. Pixel sprites, level maps, boss fights, and a HUD that never turns off.\n\nPALETTE: Arcade black #0A0A14 background. Sprite cyan #35D0E0, coin yellow #F7D038, and alert red #E03C3C for sprites and HUD elements. Pixel white #F2F2F2 for text. Flat color only, dithering allowed for shading.\n\nTYPE: Blocky pixel font for everything, all caps. Slide titles as level cards (LEVEL 3: CASH FLOW) at 6x body size. A HUD strip on every slide: SCORE showing a real metric, HI-SCORE showing the goal, and LIVES.\n\nIMAGES: Everything as 8-bit and 16-bit pixel art. Sprite characters for people. Item icons for tools and resources: coins, keys, hearts, potions. No photos, no smooth curves.\n\nVOICE: Game text. Level intros, item pickups, and boss warnings: \"A WILD BOTTLENECK APPEARS.\" Numbers are points, and the deck keeps score.\n\nLAYOUT MENU: Title screen opener with the deck title as the game logo, PRESS START blinking, and a copyright year. Character select for teams or options. A world map with numbered stages for processes and timelines. Boss battle for the core problem, health bar included. Power-up screens for tools and features. Victory closer with the final score and CONTINUE? YES.\n\nNEVER: photographs, gradients, smooth curves, modern flat icons, thin type, anti-aliased edges.\n\nOne idea per slide. All slide text in English. One deck, one system, every slide belongs. Vibe test: a founder who grew up in arcades should hear it."
+  },
+  {
+    "group": "Editorial & Business Styles",
+    "title": "Modern Newspaper",
+    "desc": "Original credit: https://x.com/mmmiyama_D/status/1998528702150488069?s=20*",
+    "images": [
+      "assets/gh-modern-newspaper-1.png",
+      "assets/gh-modern-newspaper-2.png",
+      "assets/gh-modern-newspaper-3.png"
+    ],
+    "prompt": "You are a top art director leading Japan's \"new economy business media.\" But the language should be what users said in the prompt. so not nessecery in (the language what users requested in the prompt).\nBased on the following \"design definition,\" generate a visually focused, high-sensibility presentation slide that sparks intellectual excitement in business professionals of the smartphone generation.\n\n[Important: Absolutely Prohibited Output Format Rules]\n* **Complete Exclusion of Markdown Symbols**: Do not include symbols like \"#\" for headings or \"*\" and \"**\" for emphasis in the slide text **under any circumstances**.\n* **Plain Text Only**: Text displayed on the slide must consist solely of \"pure (the language what users requested in the prompt) and English text\" without any decorative symbols.\n\n[Special Specification for Cover Slide: Make This the Highest Quality]\n* **Design Philosophy**: Draw inspiration from \"Swiss Style (International Typographic Style)\" or \"Bauhaus.\"\n* **Layout**: Ban simplistic \"centered alignment.\" Create tension with **\"asymmetrical\"** placement. Use a grid system to position the title extremely off to the top left or bottom left, or craft bold negative space for refinement.\n* **Title Copy Design**:\n    * **Main Title (Ultra-Large · Short Phrase)**: Ditch descriptive words. Make it a visual anchor with a short word or phrase of about \"2–5 characters\" (e.g., \"Liberation,\" \"Collapse and Rebirth,\" \"The True Face of AI\").\n    * **Subtitle (Ultra-Small · Benefit-Driven)**: Carve into the reader's pain points and hint at resolution with a concise sentence (e.g., \"Why Is Your Advertising Dead?\" \"How to Ditch 'Tasks' and Return to 'Creation'\").\n    * **Composition Ratio**: Punch the eyes with the main title, stab the brain with the subtitle.\n\n[Overall Design Definition for All Slides]\n1.  **Core Theme**: Smart & pop business infotainment (intellectual curiosity × entertainment)\n2.  **Color Palette**:\n    * Background Color: White (#FFFFFF) or Cool Gray (#F5F5F5)\n    * Text Color: Sumi (Jet Black) (#111111)\n    * Accent Color: Electric Yellow (#FFCC00) or Alert Red (#FF3333)\n3.  **Visual Style**:\n    * Adopt the design philosophy of a \"**smartphone-first economic media**.\"\n    * Use images like \"monochrome cutouts of people\" or \"stylish photos with blown-out backgrounds\" to emphasize the subject.\n    * Highlight key numbers or keywords with fluorescent marker-style lines (yellow background) to create rhythm.\n\n4.  **Typography (Text as Graphic)**:\n    * Position headlines at an \"**ultra-massive size**\" occupying **30%–50%** of the slide's area.\n    * **Extreme Jump Ratio**: The size ratio between \"headlines\" and \"body text\" must be **10:1** or more. No half-hearted size differences allowed.\n    * For headlines, use **extra-bold sans-serif** (Impact/(Hiragino) W8 weight) to treat them as a \"surface,\" and tuck ultra-thin English fonts into the gaps for a sense of airiness.\n\n5.  **Overall Structure**:\n    * Strictly adhere to \"1 slide = 1 message.\"\n    * Layout is a binary choice between \"negative space\" or \"text.\" Draw the eye through contrasts of text-packed areas that fill the screen and vast empty voids.\n    * Place the conclusion (punchline) with a \"bam!\" in the center of the slide, or position it spilling off the edge for visual impact."
+  },
+  {
+    "group": "Editorial & Business Styles",
+    "title": "Sharp-edged Minimalism",
+    "desc": "Original credit: https://x.com/yoshifujidesign/status/1997878247322001626?s=20*",
+    "images": [
+      "assets/gh-sharp-edged-minimalism-1.png",
+      "assets/gh-sharp-edged-minimalism-2.png"
+    ],
+    "prompt": "# presentation_design_spec_minimal_jp.yaml\n# Style: Refined Minimal Portfolio\n# Characteristics: Top-left navigation, aesthetics of whitespace, grid-based layout\n\nGlobal Design Settings:\n  Tone: \"Professional, architectural, sharp-edged minimalism\"\n  Color Palette:\n    Base: \"#E9E9E9 (light gray) or #FFFFFF (white)\"\n    Text: \"#000000 (jet black) or #333333 (dark gray)\"\n    Accent: \"#000000 (black) – used for bold lines and emphasized text\"\n    Special: \"Dark mode (black background) – used for slides that need emphasis\"\n  Typography:\n    Headings: \"English sans-serif (e.g., Helvetica Now, Inter). Bold and decoratively positioned.\"\n    Body: \"(the language what users requested in the prompt) Gothic typeface. Small size with generous letter spacing and line height.\" But the language should be what users said in the prompt.\n  Common Layout Rules:\n    Navigation: \"Place a small section number and title such as '01. INTRODUCTION' in the top-left (or top-right) of every slide.\"\n    Grid: \"Use a strict grid system to align elements.\"\n    Whitespace: \"Intentionally leave large areas empty (negative space) to create a sense of luxury.\"\n\nLayout Variations (Catalog):\n  - Type: \"Title Typography\"\n    Design: \"Scattered layout. Randomly place award badges or keywords like stamps. The central title is small, bold, and restrained.\"\n\n  - Type: \"Text + Data Emphasis\"\n    Design: \"Asymmetrical split. Narrative text on the left, oversized numbers (black) on the right. Include thin divider lines.\"\n\n  - Type: \"Card Grid\"\n    Design: \"Tightly spaced grid. Arrange high-quality images with a web-like interaction feel, such as text appearing on mouse-over.\"\n\n  - Type: \"Full-Screen Graphic\"\n    Design: \"Office interior photography occupying the full screen (or more than half). Concrete textures, desks lined with Macs. Reduce saturation for a cool tone. Add a very small caption in the bottom-left.\"\n\n  - Type: \"Photo + List Split\"\n    Design: \"50:50 split. Left: architectural or abstract photography. Right: data list (bold headings + light-weight descriptions). Used for company info. Bold item names, thin body text. Generous spacing; avoid overcrowding.\" But the language should be what users said in the prompt. \n\n  - Type: \"Minimal Map\"\n    Design: \"Silhouette-style map. Light gray background with a white map. Use ultra-thin callout lines to indicate locations.\"\n\n  - Type: \"Vertical Timeline\"\n    Design: \"Vertical axis. A single thin line with text branching left and right. Clean chronological order.\"\n\n  - Type: \"Bubble Chart / Venn Diagram\"\n    Design: \"Wireframe style. Black background with thin white line art. Semi-transparent overlapping circles.\"\n\n  - Type: \"Dialogue (Chat Style)\"\n    Design: \"Minimal conversational format. Not comic speech bubbles, but simple text blocks with bold speaker names.\"\n\n  - Type: \"Chronological List\"\n    Design: \"Rhythmic list. Large years (e.g., 2024) on the left, descriptions on the right. Strong contrast in font sizes.\"\n\n  - Type: \"Dark Mode Diagram\"\n    Design: \"Intellectual tech aesthetic. Black background with thin white lines connecting nodes. Constellation- or network-like appearance. Circles connected by fine lines or geometric patterns, expressing a fusion of technology and creativity.\"\n\n  - Type: \"3-Step Columns\"\n    Design: \"Typography-driven columns. Large numbers (01, 02, 03) act as pillars. No icons; rely on typographic contrast.\"\n\n  - Type: \"Logo Grid\"\n    Design: \"Monochrome grid. Convert all logos to black or gray and align them in a strict grid.\"\n\n  - Type: \"Two Columns (Problem vs Solution)\"\n    Design: \"Sharp contrast. A thick black vertical line separates 'Problem' and 'Solution'. Text aligned in block form.\"\n\n  - Type: \"Centered Layout (Dark Mode)\"\n    Design: \"Cinematic. A small video thumbnail or key visual centered on a black background. Add an emotional English tagline.\"\n\n  - Type: \"Formula / Flow Diagram\"\n    Design: \"Mathematical style. Expressions like 'A × B = C' rendered in large serif type. Minimal arrows.\"\n\n  - Type: \"Arrow Steps\"\n    Design: \"Linear process. Place text inside large arrows. High contrast (black arrows with white text).\"\n\n  - Type: \"Chart\"\n    Design: \"Precision data. Graphs with thin lines ending in small black dots. Scientific instrument-like appearance.\""
+  },
+  {
+    "group": "Editorial & Business Styles",
+    "title": "Yellow × Black Editorial",
+    "desc": "Original credit: https://x.com/kawai_design",
+    "images": [
+      "assets/gh-yellow-black-editorial-1.jpg",
+      "assets/gh-yellow-black-editorial-2.jpg"
+    ],
+    "prompt": "Yellow background, black text, large dynamic modern serif font placement, stylish, photos are unique fashion photography, with pop and chic touches like handwriting or stickers scattered throughout, bold layout like a fashion magazine"
+  },
+  {
+    "group": "Editorial & Business Styles",
+    "title": "Black × Orange Creative Agency",
+    "desc": "Original credit: https://x.com/kawai_design",
+    "images": [
+      "assets/gh-black-orange-creative-agency-1.png",
+      "assets/gh-black-orange-creative-agency-2.png"
+    ],
+    "prompt": "Background is white, text is black, accent color is blood orange, stylish design that a creative agency might create, incorporating dynamic and simple photos and English typography. But the language should be what users said in the prompt."
+  },
+  {
+    "group": "Pop, Youth & Street Styles",
+    "title": "Manga Style",
+    "desc": "Original credit: https://x.com/kawai_design",
+    "images": [
+      "assets/gh-manga-style-1.png",
+      "assets/gh-manga-style-2.png"
+    ],
+    "prompt": "Understanding becomes deeper with \"fun.\" Sometimes, it's recommended to turn information into a comic and input it along with a story. You can relate it to your own situation, and it's easier to remember."
+  },
+  {
+    "group": "Pop, Youth & Street Styles",
+    "title": "Magazine Style",
+    "desc": "Original credit: https://x.com/tetumemo/status/1996930284500201685?s=20",
+    "images": [
+      "assets/gh-magazine-style.png"
+    ],
+    "prompt": "# Instructions\nPlease compile [Source Information] in a [mature-cute, sophisticated magazine-style editorial design].\n\n# Layout Requirements\n・Place a large cutout photo of the subject (model woman or product) in the center, emphasizing movement or pose\n・Place speech bubbles or text boxes asymmetrically in the left and right margins\n・Distribute main points as small sections numbered like \"NO.1\" \"NO.2\"\n・Place a vertical text box (white background) at the edge of the screen (e.g., right side) and insert a catchy copy\n・Place L-shaped lines resembling crop marks (\"trim marks\") in the four corners to create a poster or page-like feel\n・Format: Landscape (4:3 or 3:2), high resolution\n・But the language should be what users said in the prompt.\n\n# Design Requirements\n・Background color: Matte, subdued tone stylish pink (dusty pink or shell pink)\n・Main image: Use a photo with the background completely removed (deep etching)\n・Decorative elements: Use hand-drawn style speech bubbles, simple circles, and thin straight lines as accents\n・Fonts: Headings in sophisticated Gothic or Mincho, comments in hand-drawn style font for a casual feel\n・In speech bubbles or text boxes, write key points from the source information in emotional handwritten text of a young woman\n・Color palette: Matte pink for background, charcoal gray or black for text, white for accents\n・Overall atmosphere: Mature-cute, feminine, trendy, polished tone\n\n# Expressions to Avoid\n・Overly childish vivid colors, overly flashy gradients, heavy shadows"
+  },
+  {
+    "group": "Future-Forward Styles",
+    "title": "Neo-Retro Dev Deck / Pixel-Infographic Editorial",
+    "desc": "",
+    "images": [
+      "assets/gh-neo-retro-dev-deck-pixel-infographic-editorial.png"
+    ],
+    "prompt": "Overall Style Name\nNeo-Retro Dev Deck / Pixel-Infographic Editorial\n1. Core Visual Identity\nAesthetic:\nRetro-futuristic, developer-centric, editorial infographic style\nFeels like:\n90s computer manuals\nmodern AI dev tools marketing\npixel-art meets startup slide deck\nMood:\nConfident, playful, opinionated, slightly rebellious\n“Builders explaining the future, not selling fluff”\n2. Canvas & Background\nUse a light cream / off-white grid paper background\nSubtle square grid (engineering notebook feel)\nGrid lines very light, never distracting\nSlides should feel like annotated engineering notes, not corporate PPTs\n3. Typography System\nPrimary headline font:\nBold, heavy sans-serif with strong geometry\nBlack text\nSlightly condensed\nHigh contrast against background\nLanguage mixing:\nHeadlines can be \"the language should be what users said in the prompt\" + English mixed\nEnglish sub-labels under \"the language should be what users said in the prompt\" titles (small, clean)\nHierarchy:\nHuge bold headline blocks\nMedium sub-titles\nSmall explanatory captions below icons or boxes\n4. Color Palette (Strict)\nUse high-contrast blocks with thick black outlines:\nHot Pink (agent / brain / intelligence concepts)\nBright Yellow (editor / code / tools)\nCyan / Light Blue (browser / web / execution)\nBlack (text, borders)\nWhite / cream (background)\nEach section = one dominant color block\n5. Layout Language\nStacked modular blocks\nRectangles with thick black borders\nSlight overlaps allowed (intentional, collage-like)\nHorizontal bars for section headers\nCard-based structure for steps, evolution, layers\nSlides should feel assembled, not perfectly aligned\n(controlled imperfection)\n6. Iconography & Graphics\nUse pixel-art style icons, including:\nRocket\nRobot / agent\nGear\nCode brackets\nBrowser window\nChat bubbles\nIcons should look:\nLow-resolution\n8-bit or 16-bit inspired\nFlat colors, black outline\nDecorative elements:\nSmall gears\nArrows\nChevrons <>\nPixel sparks / motion lines\n7. Content Patterns (Very Important)\nA. “System Architecture” Slides\nUse stacked layers with labels\nEach layer:\nOne color\nOne icon\nOne bold title\nOne short explanatory line\nExample structure:\nAgent Manager\nAI Editor\nAgent-Controlled Browser\nB. “Evolution / Timeline” Slides\nLeft → right progression\nEach step in its own box:\nAuto-complete\nChat\nAgent\nNew Model (highlighted)\nFinal step should be visually larger and more colorful\nC. “Manifesto / Thesis” Slides\nOne huge headline in a boxed frame\nMinimal text\nSurrounded by playful icons\nFeels like a statement, not documentation\n8. Tone of Text\nShort\nDeclarative\nSlightly opinionated\nNo marketing fluff\nGood:\n“Agents execute tasks autonomously”\n“Coding enters the agent era”\nBad:\n“Empowering users with cutting-edge solutions”\n9. What to Avoid\nNo gradients\nNo realistic photos\nNo soft shadows\nNo corporate templates\nNo minimalism for its own sake\nThis is expressive, not quiet\n10. Generation Instruction (Critical)\nGenerate multiple slides following this exact visual system.\nMaintain consistency in:\ngrid background\ncolor usage\nicon style\ntypography hierarchy\nSlides should look like they belong to one cohesive deck, not individual posters."
+  },
+  {
+    "group": "Pop, Youth & Street Styles",
+    "title": "Pink Street-style",
+    "desc": "Original credit: https://x.com/kawai_design",
+    "images": [
+      "assets/gh-pink-street-style-1.png",
+      "assets/gh-pink-street-style-2.png"
+    ],
+    "prompt": "Background is pink, text is white and black, illustrative illustrations are pop and deformed illustrations drawn with thick lines, overall street style but pop, flat colors, photos are trimmed into soft and squishy shapes to create a sense of looseness,"
+  },
+  {
+    "group": "Typography / Font-driven Styles",
+    "title": "Mincho × Handwritten Mix",
+    "desc": "Original credit: https://x.com/kawai_design",
+    "images": [
+      "assets/gh-mincho-handwritten-mix-1.png",
+      "assets/gh-mincho-handwritten-mix-2.png"
+    ],
+    "prompt": "Yellow background, black text, large dynamic modern serif font placement, stylish, photos are unique fashion photography, with pop and chic touches like handwriting or stickers scattered throughout, bold layout like a fashion magazine"
+  },
+  {
+    "group": "Editorial & Business Styles",
+    "title": "For Seminar Use (Minimal Text)",
+    "desc": "Original credit: https://x.com/kawai_design",
+    "images": [
+      "assets/gh-for-seminar-use-minimal-text-1.png",
+      "assets/gh-for-seminar-use-minimal-text-2.png"
+    ],
+    "prompt": "White background, black text, red accent color, sans-serif font, high-quality photo like a fashion portrait, dynamic typography, high-sensibility design"
+  },
+  {
+    "group": "Artistic & Avant-Garde Styles",
+    "title": "Royal Blue × Red Watercolor",
+    "desc": "Original credit: https://x.com/kottley/status/1994442047579721782?s=20",
+    "images": [
+      "assets/gh-royal-blue-red-watercolor-1.png",
+      "assets/gh-royal-blue-red-watercolor-2.png",
+      "assets/gh-royal-blue-red-watercolor-3.png"
+    ],
+    "prompt": "Shades of royal Blue and Red wet watercolor.  Focus on different artistic styles to be used with kael/notebooklm Slides decks."
+  },
+  {
+    "group": "Professional / Product / Premium",
+    "title": "Studio / Mockup / Premium",
+    "desc": "Original credit: https://note.com/yoshifujidesign/n/n7412bccb5762",
+    "images": [
+      "assets/gh-studio-mockup-premium-1.png",
+      "assets/gh-studio-mockup-premium-2.png"
+    ],
+    "prompt": "# presentation_design_spec_premium_mockup_jp.yaml\n# Source: Uploaded Images (Apple Device Mockups with Modern UI)\n# Style: Premium Mockup / Modern UI / Clean Tech\n# Concept: \"Showcase in Perfection\"\n\nGlobal Design Settings:\n  Tone: \"High-quality, advanced, clean, refined, professional\"\n\nColor Palette:\n  Background:\n    - \"#FFFFFF (pure white)\"\n    - \"#F5F5F7 (very light gray, studio-like)\"\n    - \"#000000 (jet black, switching by slide)\"\n  Accent Colors:\n    - \"#8D59E9 (Electric Purple – main action color)\"\n    - \"#EBE021 (Acid Yellow – highlight points & badges)\"\n  Sub Colors:\n    - \"#D8E2EC (pale blue-gray for cards and base areas)\"\n    - \"#2D2D2D (charcoal for text and UI parts)\"\n\nVisual Identity:\n  Devices: \"High-quality 3D mockups of Apple products (Studio Display, MacBook Pro, iPad, iPhone 16 Pro)\"\n  UI Screen Design:\n    Background: \"Jet black (#000000) or vivid gradients (purple, yellow, orange)\"\n    Typography: \"Extra-bold sans serif (e.g., Helvetica Now Display Bold) in white\"\n    Layout: \"Card-based UI, grid layout, oversized numbers\"\n\nTypography:\n  Headings: \"Blocky sans serif type with a large jump ratio. English large, (the language should be what users said in the prompt) small.\"\n  Body: \"Thin gray gothic font. For emphasis, place text on black (#000000), white (#FFFFFF), Electric Purple (#8D59E9), or Acid Yellow (#EBE021).\"\n\nCommon Layout Rules:\n  - \"Studio Lighting: Apply soft shadows under devices to create a realistic studio environment.\"\n  - \"Screen as Hero: Device screens should occupy 70–80% of the slide area.\"\n  - \"Crop/Overflow: Allow part of the device to extend beyond slide boundaries for scale and impact.\"\n\nLayout Variations:\n  - Type: \"Hero Display\"\n    Design: \"Center the Studio Display with a black-background UI and ultra-bold white title (e.g., 'STUDIO DISPLAY MOCKUPS'). Large English title, small (the language should be what users said in the prompt) subtitle.\"\n\n  - Type: \"Floating Mobile\"\n    Design: \"Float an iPhone mockup in mid-air showing an app UI. Add blurred accent-colored lighting behind it.\"\n\n  - Type: \"Grid Interface\"\n    Design: \"Inside a MacBook screen, arrange colorful UI cards (purple, cyan, yellow) in a clean grid.\"\n\n  - Type: \"Dark Mode Presentation\"\n    Design: \"Device screen in dark mode. Use white + Acid Yellow for high-contrast emphasis.\"\n\n  - Type: \"Angle Shot\"\n    Design: \"Show device from a diagonal side angle to highlight thinness and texture. Add spec info in the whitespace.\"\n\n  - Type: \"Split Screen\"\n    Design: \"Left: half a device mockup. Right: large typography. Ensure seamless connection between screen colors and background.\"\n\n  - Type: \"Card Grid (Text Only)\"\n    Design: \"Extend the device’s UI layout to the whole slide. Place white or purple cards on #D8E2EC.\"\n\n  - Type: \"Big Typography\"\n    Design: \"Black background (#000000) with massive white ultra-bold text. English large, (the language what users requested in the prompt) very small. Use thin white dividers.\"\n\n  - Type: \"Split UI\"\n    Design: \"Left: large numbers ('16', '3680'). Right: descriptive text. Wrap in card-like frames.\"\n\n  - Type: \"Feature List Card\"\n    Design: \"White background with rounded gray band (#F5F5F7). Inside: aligned icons + text, large English title, small (the language should be what users said in the prompt) subtitle.\"\n\nDesign Rules:\n  - \"High Resolution: All mockup images must be high resolution with no visible pixels.\"\n  - \"Reflection & Gloss: Reproduce realistic screen reflections for premium feel.\"\n  - \"UI Spacing: Device UI should also follow a spacious, minimal layout.\""
+  },
+  {
+    "group": "Sports & High-energy Styles",
+    "title": "Sports / Athletic / Energy",
+    "desc": "Original credit: https://note.com/yoshifujidesign/n/n7412bccb5762",
+    "images": [
+      "assets/gh-sports-athletic-energy-1.png",
+      "assets/gh-sports-athletic-energy-2.png"
+    ],
+    "prompt": "# presentation_design_spec_sports_active_jp.yaml\n# Style: Sports / Athletic / Energy\n# Concept: \"Speed, Impact, and Heartbeat\"\n\nGlobal Design Settings:\n  Tone: \"Passionate, fast-paced, powerful, competitive\"\n\n  Color Palette:\n    Base: \"#111111 (asphalt-like black)\"\n    Text: \"#FFFFFF (white)\"\n    Accent:\n      - \"#CCFF00 (Bolt Lime)\"\n      - \"#FF4500 (Neon Orange)\"\n    Gradient: \"Overlay a black-to-transparent gradient on top of photos\"\n\n  Typography:\n    Headings: \"Extra-bold italic gothic type (Impact, Din Condensed, etc.)\"\n    Body: \"Italic sans serif type\"\n    Numbers: \"Stencil-style or jersey-style sports typography\"\n\n  Common Layout Rules:\n    Navigation: \"Place page numbers inside angled, diagonal-cut shapes\"\n    Shapes: \"Skew rectangles or images, or use parallelogram shapes\"\n\nLayout Variations:\n  - Type: \"Action Cut\"\n    Design: \"Use dynamic background photography (motion blur, running shots). Place large italic text in the foreground, overlapping the athlete or subject.\"\n\n  - Type: \"VS Layout\"\n    Design: \"Divide the screen diagonally. Bottom-left = your side (strengths). Top-right = competitor (challenges). Use a jagged lightning-like divider.\"\n\n  - Type: \"Speed Meter\"\n    Design: \"Display achievements or metrics in the style of a car speedometer or stadium scoreboard.\"\n\n  - Type: \"Highlight Stripe\"\n    Design: \"Place a bold diagonal stripe behind key words, as if marked with a fast, energetic brush or marker.\""
+  },
+  {
+    "group": "Artistic & Avant-Garde Styles",
+    "title": "Classic / Pop (Sculpture × Vaporwave)",
+    "desc": "Original credit: https://note.com/yoshifujidesign/n/n7412bccb5762",
+    "images": [
+      "assets/gh-classic-pop-sculpture-vaporwave-1.png",
+      "assets/gh-classic-pop-sculpture-vaporwave-2.png"
+    ],
+    "prompt": "# presentation_design_spec_sculpture_pop_flexible_jp.yaml\n# Style: Sculpture Pop Art / Vaporwave / Neon Surrealism\n# Concept: \"A Free Remix of Classical Art and Modern Pop Objects\"\n\nGlobal Design Settings:\n  Theme: \"Classical marble sculpture × modern neon pop (flexible style)\"\n  Tone: \"Bold, humorous, high-saturation, fashionable, surreal\"\n\n  Visual Identity:\n    Background Colors: \"High-saturation solid colors that change each slide (cyan, magenta, yellow, lime, purple, etc.)\"\n    Collage Materials:\n      Sculptures: \"Various classical white marble statues (men, women, gods, philosophers, etc. — change per slide)\"\n      Gadgets: \"Modern pop items (sunglasses, headphones, smartphones, VR, food items)\"\n      Item Colors: \"Adjust each object to be either complementary or analogous to the background color\"\n\n  Typography:\n    Headings: \"Ultra-bold sans serif (e.g., Helvetica Now Display Black)\"\n    Text Color: \"Whichever color achieves the highest contrast with the background (white, black, or matching accent color)\"\n\nLayout Variations (Catalog):\n\n  # --- High Impact Visuals ---\n  - Type: \"Drink Vibes (Cover)\"\n    Design: \"Vivid background. A classical bust wearing colorful sunglasses, sipping juice/soda with a straw in an extreme close-up.\"\n\n  - Type: \"Bubblegum Shock\"\n    Design: \"A statue (goddess, child, etc.) blowing a large bubblegum bubble in a contrasting color. Scatter geometric shapes around the scene.\"\n\n  - Type: \"Music Head\"\n    Design: \"Dark background (black or navy). A statue wearing bright-colored wireless headphones, immersed in music (or holding a smartphone).\"\n\n  - Type: \"Scream Color\"\n    Design: \"Bright background (yellow or lime). A statue with an expressive open-mouth pose wearing flashy-lens sunglasses.\"\n\n  # --- Concept Messaging ---\n  - Type: \"Split Duality\"\n    Design: \"Screen divided into two contrasting colors. A statue stands on the border, holding different modern objects in each hand (book vs tablet, pen vs smartphone).\"\n\n  - Type: \"Selfie King\"\n    Design: \"A statue lifting a smartphone for a selfie. Inside the phone screen, display SNS-style UI (likes, comments).\"\n\n  - Type: \"VR Dive\"\n    Design: \"A statue wearing VR goggles, looking upward into space. Floating 3D objects surround the scene.\"\n\n  # --- Information-Focused Layouts ---\n  - Type: \"Donut Chart\"\n    Design: \"Use real photos of donuts or pizza slices to build a donut chart. The statue is eating or holding the chart.\"\n\n  - Type: \"Item List\"\n    Design: \"A statue holding pop items (sneakers, skateboard, boombox). Each item has a speech bubble explaining features.\"\n\n  - Type: \"Comparison (A vs B)\"\n    Design: \"Two statues facing each other. One styled ‘Old’ with classical ornamentation, the other ‘New’ with modern accessories.\"\n\n  - Type: \"Team Pedestal\"\n    Design: \"Multiple busts placed on pedestals as team members, each personalized with different sunglasses or hats.\"\n\n  - Type: \"QR Contact\"\n    Design: \"A surreal ending slide: the statue has a QR code sticker on its forehead or is holding a QR code panel.\"\n\nDesign Rules:\n  - \"Variation: Do not reuse the same statue across slides; alternate between male, female, and animal sculptures to keep visual novelty.\"\n  - \"Color Contrast: Ensure strong contrast between background and item colors (e.g., purple background × yellow accessories).\"\n  - \"Isolation: Cleanly cut out statues and objects from their backgrounds, keeping edges sharp and precise.\""
+  },
+  {
+    "group": "Artistic & Avant-Garde Styles",
+    "title": "Tech / Art / Neon",
+    "desc": "Original credit: https://note.com/yoshifujidesign/n/n7412bccb5762",
+    "images": [
+      "assets/gh-tech-art-neon-1.png",
+      "assets/gh-tech-art-neon-2.png"
+    ],
+    "prompt": "# presentation_design_spec_neon_collage_jp.yaml\n# Source: Uploaded Image (1bce448a...jpg)\n# Style: Constructivism / Tech-Art / Avant-Garde\n# Concept: \"Architecture of Intelligence\"\n\nGlobal Design Settings:\n  Tone: \"Avant-garde, structural, intellectual, artistic, future-oriented\"\n\n  Visual Identity:\n    Background Color: \"Warm gray / beige (#E0E0D0) — matte, paper-like texture\"\n    Text Color: \"Charcoal gray (#333333) — not pure black\"\n    Accent Color: \"Neon Yellow (#DFFF00) — used for geometric shapes\"\n    Line Color: \"Ultra-thin gray lines (0.5pt), similar to architectural draft lines\"\n\n  Typography:\n    Headings: \"Mix of serif (Didot, Bodoni) and sans serif (Helvetica)\"\n    Body: \"Small-size text aligned strictly to the grid\"\n    Numbers: \"Typewriter-style fonts (Courier New)\"\n\nSlide Composition Patterns:\n\n  # --- Cover / Concept ---\n  Section: \"Cover / Concept\"\n  Layout Type: \"Triple Collage\"\n  Design Details:\n    - \"Structure: Screen divided into three sections with grid lines\"\n    - \"Visuals: Monochrome cut-out portraits\"\n    - \"Accents: Neon yellow circles and squares behind or in front of the subject\"\n    - \"Decoration: Concentric rings (target-scope style) placed around the focal point\"\n\n  # --- Analysis / Diagram ---\n  Section: \"Analysis / Dissection\"\n  Layout Type: \"Technical Drawing\"\n  Design Details:\n    - \"Background: Fine grid similar to graph paper\"\n    - \"Main: Line-art / wireframe illustrations of products or concepts, partially filled in neon yellow\"\n    - \"Annotations: Thin leader lines with blueprint-style labels (e.g., Fig.1, Fig.2)\"\n\n  # --- Process / Flow ---\n  Section: \"Process / Flow\"\n  Layout Type: \"Geometric Connection\"\n  Design Details:\n    - \"Elements: Neon yellow circles, squares, triangles\"\n    - \"Connections: Dotted or dashed lines linking shapes to express logic flow\"\n    - \"Photography: Use shapes as masks to embed monochrome photos inside them\"\n\n  # --- Data / Infographic ---\n  Section: \"Data / Infographic\"\n  Layout Type: \"Radar Chart Art\"\n  Design Details:\n    - \"Chart: Large spiderweb-style radar chart across the slide\"\n    - \"Data Lines: Thick neon yellow plotting lines\"\n    - \"Background: Subtle texture resembling old maps or blueprints\"\n\nDesign Rules:\n  - \"Color Limitation: Use only three main colors — beige (background), monochrome (photos), neon yellow (geometry)\"\n  - \"Collage: Never place photos as plain rectangles; always cut out the subject cleanly\"\n  - \"Layering Order: Grid background → neon geometric shapes → monochrome cut-out photo → foreground text\""
+  },
+  {
+    "group": "Pop, Youth & Street Styles",
+    "title": "Digital / Neo / Pop",
+    "desc": "Original credit: https://note.com/yoshifujidesign/n/n7412bccb5762",
+    "images": [
+      "assets/gh-digital-neo-pop-1.png",
+      "assets/gh-digital-neo-pop-2.png"
+    ],
+    "prompt": "# presentation_design_spec_pop_jp.yaml\n# Style: Vitamin Pop / Digital Neo\n# Characteristics: Organic shapes, bright color palette, SNS-friendly visual tone\n\nGlobal Design Settings:\n  Design Theme: \"Digital Pop × Academic\"\n  Tone & Manner: \"Modern, fluid, friendly, high information density\"\n\n  Key Visuals:\n    Motifs: \"Organic amoeba-like or cloud-like shapes. Random placement around slide edges, partially cropped.\"\n    Decorations: \"Dot patterns, hand-drawn highlight strokes, SNS-style icon decorations\"\n\n  Color Palette:\n    Base: \"White (#FFFFFF) or light-gray dot-pattern background\"\n    Main Colors: \"Vivid pink, cyan, purple (neon-sign inspired)\"\n    Accent: \"Black (used for text and outlines to anchor the pop colors)\"\n    Chart Colors: \"Gradient-filled bars (e.g., green → yellow)\"\n\n  Typography:\n    Headings: \"Bold gothic type. Impact-focused. Outline text (white fill + black stroke) allowed.\"\n    Body: \"Highly readable gothic sans serif.\"\n    Numbers: \"Large Western type for emphasis, especially percentages.\"\n\nDesign Guidelines:\n  - Organic Shapes: \"Use irregular, hand-drawn, wavy shapes rather than strict rectangles or circles to express community fluidity.\"\n  - Icons: \"Prefer pop illustrations or abstract avatar icons (shapes with eyes, abstract faces) over photos of real people.\"\n  - Information Contrast: \"Balance text-heavy slides with highly visual slides.\"\n\nLayout Variations (Catalog):\n\n  - Type: \"Title Composition\"\n    Design: \"Place an organic blob or cloud shape at the center and position the title inside it. Add small stars and sparkles around it.\"\n\n  - Type: \"Text + Data Pop\"\n    Design: \"Split layout: left = text, right = colorful donut chart (vivid pink, cyan, purple). Emphasize numbers at extremely large scale.\"\n\n  - Type: \"Organic Timeline\"\n    Design: \"A wavy vertical line like a plant stem. Use leaf/bud-like icons at timeline milestones.\"\n\n  - Type: \"Bubble Cluster\"\n    Design: \"Overlapping translucent circles like soap bubbles. Use dot patterns in the background to enhance the pop feeling.\"\n\n  - Type: \"SNS Chat Style\"\n    Design: \"A smartphone-style frame containing chat bubbles and icons. Important insights highlighted with bold text or marker strokes. Speakers represented by differently colored amoeba-shaped icons.\"\n\n  - Type: \"Concept Formula / Flow Diagram\"\n    Design: \"Explain formulas like “Energy × Empathy” using hand-drawn arrows, icons, and crayon-like strokes.\"\n\n  - Type: \"Colorful Step Flow\"\n    Design: \"Large arrow flowing left → right. Each step in a different color (cyan → purple → pink). Clearly marks progression.\"\n\n  - Type: \"Lollipop Chart\"\n    Design: \"Use lollipop-style bars (round tips) or rounded bar charts. Color-code categories. Optionally overlay a line chart for combined visualization.\"\n\n  - Type: \"Sticker Grid\"\n    Design: \"Slightly tilted square cards, appearing taped or stickered on the slide. Mimics a collage of sticky notes.\"\n\n  - Type: \"Character Ending\"\n    Design: \"Place a cloud/amoeba character in the center. Arrange SNS icons (circular) around it to display contact information.\"\n\nAdditional Notes:\n  - Organic Shapes: \"Use hand-drawn, wavy shapes—not rigid geometric forms—to convey community fluidity.\"\n  - Icons: \"Mix monochrome cut-out photos with bright pop illustrations and abstract avatar icons (eyes, blobs) to maintain friendliness.\"\n  - Information Contrast: \"Ensure clear rhythm between dense-text pages and visual-heavy pages.\""
+  },
+  {
+    "group": "Future-Forward Styles",
+    "title": "Anti-Gravity / Artifact Deck",
+    "desc": "",
+    "images": [
+      "assets/gh-anti-gravity-artifact-deck-1.png",
+      "assets/gh-anti-gravity-artifact-deck-2.png",
+      "assets/gh-anti-gravity-artifact-deck-3.png"
+    ],
+    "prompt": "Style Name\nAnti-Gravity / Living Artifact Presentation\n1. Core Concept (This Matters Most)\nThis presentation is not a slide deck.\nIt is a living artifact.\nVisualizes thinking becoming structure\nFeels like an interface for ideas\nCalm, modern, confident, precise\nBuilt for agents, systems, and future workflows\nThink:\nApple-level clarity\nGoogle DeepMind research decks\nCalm AI infrastructure product launches\n2. Overall Aesthetic\nMinimal\nAiry\nHigh negative space\nNo visual noise\nEverything feels intentional and breathable\nEmotion:\n“This system already works. We are just showing you.”\n3. Background & Canvas\nPure white background as default\nAdd soft, flowing gradient accents:\nBlue → cyan → violet\nVery low opacity\nAppears on corners or edges only\nNever behind text\nGradients feel like:\nLight\nMotion\nEnergy\nAnti-gravity fields\nNo hard shapes. No grids. No textures.\n4. Typography System\nHeadlines\nClean, modern sans-serif\nSlightly rounded geometry\nMedium–bold weight\nCalm authority (not aggressive)\nExamples:\n“Anti-gravity”\n“Artifact”\n“Agent-controlled Browser”\nLanguage\n(the language should be what users said in the prompt) primary\nEnglish secondary labels\nEnglish often smaller and lighter\nHierarchy\nLarge headline\nOne concise explanatory sentence\nShort bullet or paragraph blocks\nNo long paragraphs.\n5. Color System\nUse very restrained color:\nPrimary text:\nBlack or very dark gray\nAccent color:\nCalm blue (used sparingly)\nUsed for:\nHeadline emphasis\nArrows\nKey icons\nGradients are decorative, not structural\nIf everything looks calm and confident, it’s correct.\n6. Layout Language\nLeft-aligned layouts\nClear reading flow\nWide margins\nLots of white space\nCommon structures:\nText on left, visual on right\nThree-column feature cards\nOne idea per slide\nSlides feel like product docs turned into visuals\n7. Visual Metaphors\nUse simple, conceptual metaphors:\nA. Thought → Structure\nMessy scribble illustration\nArrow\nClean diagram / checklist / UI\nThis shows:\n“Agents turn ambiguity into artifacts.”\nB. Interface as Proof\nRealistic browser / app screenshots\nCursor highlights\nClick indicators\nMessage:\n“The agent actually does this.”\nC. Cards as Capabilities\nSoft rounded rectangles\nSubtle shadows\nIcon + title + 1–2 lines\nNo decoration beyond function.\n8. Iconography\nThin-line icons\nOutline style\nConsistent stroke weight\nCalm and professional\nExamples:\nCode brackets\nNetwork / manager node\nBrowser window\nChecklist\nDiagram nodes\nNo pixel art. No emojis. No playful icons.\n9. Motion & Flow (Implied)\nEven in static slides, imply motion:\nArrows\nDirectional flow\nSequential layouts\nEverything suggests systems in operation, not static diagrams.\n10. Tone of Copy\nClear\nPrecise\nSlightly philosophical\nNo hype language\nAvoid:\nBuzzwords\nMarketing slogans\nEmotional exaggeration\n11. What to Avoid (Strict)\nNo pixel art\nNo thick borders\nNo bright blocks\nNo collage\nNo stickers\nNo loud contrasts\nIf it feels “fun”, it’s wrong.\nIf it feels “inevitable”, it’s right.\n12. Generation Instruction (Important)\nGenerate a cohesive multi-slide presentation following this system.\nMaintain:\nWhite space discipline\nSoft gradient accents\nCalm typographic hierarchy\nMinimal but meaningful visuals\nEvery slide should feel like part of one product narrative, not standalone posters."
+  },
+  {
+    "group": "Artistic & Avant-Garde Styles",
+    "title": "Deformed Flat Persona",
+    "desc": "Original credit: https://x.com/kawai_design",
+    "images": [
+      "assets/gh-deformed-flat-persona-1.jpg",
+      "assets/gh-deformed-flat-persona-2.jpg",
+      "assets/gh-deformed-flat-persona-3.jpg"
+    ],
+    "prompt": "# Style:\n- Flat colors\n\n# Illustration:\n- A person with slightly deformed form\n- Thick outlines\n\n# Color:\n- Gentle tones with a bit of white mixed in\n- Up to 3 colors allowed\n\n# Outline:\n- Thick\n\n# Background:\n- Solid flat color with 1 color"
+  }
+];
+
+const SOURCES = [
+  { label: "The Gemini Notebook Style Pack (formerly NotebookLM) — truetraction (Notion)",
+    url: "https://truetraction.notion.site/The-Gemini-Notebook-Style-Pack-formerly-NotebookLM-3a4eca2dc63381eba726d5e10e15ca50" },
+  { label: "awesome-notebookLM-prompts — serenakeyitan (GitHub)",
+    url: "https://github.com/serenakeyitan/awesome-notebookLM-prompts" },
+];
+
+const deck = document.getElementById("deck");
+const slides = [];
+let current = 0;
+
+function addSlide(el) {
+  el.classList.add("slide");
+  deck.appendChild(el);
+  slides.push(el);
+}
+
+// Cover
+const cover = document.createElement("section");
+cover.className = "cover";
+cover.innerHTML = `<img src="assets/cover.png" alt="Awesome Gemini Notebook Slides Templates">
+  <div class="cover-hint">Use ← → keys or the arrows to navigate</div>`;
+addSlide(cover);
+
+// Template slides
+for (const t of TEMPLATES) {
+  const s = document.createElement("section");
+  const imgs = t.images.map(src => `<img src="${src}" alt="${t.title} example" loading="lazy">`).join("");
+  s.innerHTML = `
+    <div class="half images">
+      <div>
+        <div class="slide-group">${t.group || ""}</div>
+        <div class="slide-title">${t.title}</div>
+        <div class="slide-desc">${t.desc || ""}</div>
+      </div>
+      ${imgs}
+    </div>
+    <div class="half">
+      <div class="code-box">
+        <div class="code-head"><span>prompt</span><button class="copy-btn">Copy</button></div>
+        <pre></pre>
+      </div>
+    </div>`;
+  s.querySelector("pre").textContent = t.prompt;
+  s.querySelector(".copy-btn").onclick = (e) => {
+    navigator.clipboard.writeText(t.prompt).then(() => {
+      e.target.textContent = "Copied!";
+      setTimeout(() => (e.target.textContent = "Copy"), 1500);
+    });
+  };
+  addSlide(s);
+}
+
+// Sources
+const src = document.createElement("section");
+src.className = "sources";
+src.innerHTML = `<h2>Sources</h2>` +
+  SOURCES.map(s => `<a href="${s.url}" target="_blank" rel="noopener">${s.label}</a>`).join("") +
+  `<p style="color:var(--paper-dim);font-size:12px;margin-top:24px">
+     This is a living collection — more templates will be added over time.</p>`;
+addSlide(src);
+
+function go(i) {
+  current = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s, k) => s.classList.toggle("active", k === current));
+  document.getElementById("counter").textContent = `${current + 1} / ${slides.length}`;
+}
+
+document.getElementById("prev").onclick = () => go(current - 1);
+document.getElementById("next").onclick = () => go(current + 1);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowRight" || e.key === "PageDown") go(current + 1);
+  if (e.key === "ArrowLeft" || e.key === "PageUp") go(current - 1);
+  if (e.key === "Home") go(0);
+  if (e.key === "End") go(slides.length - 1);
+});
+
+go(0);
+</script>
+</body>
+</html>
