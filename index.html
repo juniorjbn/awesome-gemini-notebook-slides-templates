@@ -167,6 +167,7 @@
 
 <div id="controls">
   <span class="counter" id="counter"></span>
+  <button class="arrow-btn" id="home" title="Home (⌂)">⌂</button>
   <button class="arrow-btn" id="prev" title="Previous (←)">←</button>
   <button class="arrow-btn" id="next" title="Next (→)">→</button>
 </div>
@@ -584,6 +585,13 @@ cover.innerHTML = `<img src="assets/cover.png" alt="Awesome Gemini Notebook Slid
   <div class="cover-hint">Use ← → keys or the arrows to navigate</div>`;
 addSlide(cover);
 
+// How-to (GIF)
+const howto = document.createElement("section");
+howto.className = "cover";
+howto.innerHTML = `<img src="assets/how-to-create-slides.gif" alt="How to create slides with Gemini Notebook">
+  <div class="cover-hint">how-to create slides with Gemini Notebook!</div>`;
+addSlide(howto);
+
 // Template slides
 for (const t of TEMPLATES) {
   const s = document.createElement("section");
@@ -619,7 +627,9 @@ src.className = "sources";
 src.innerHTML = `<h2>Sources</h2>` +
   SOURCES.map(s => `<a href="${s.url}" target="_blank" rel="noopener">${s.label}</a>`).join("") +
   `<p style="color:var(--paper-dim);font-size:12px;margin-top:24px">
-     This is a living collection — more templates will be added over time.</p>`;
+     This is a living collection — more templates will be added over time.</p>
+   <button class="copy-btn" id="back-home" style="margin-top:20px;padding:10px 22px;font-size:13px">⌂ Back to home</button>`;
+src.querySelector("#back-home").onclick = () => go(0);
 addSlide(src);
 
 function go(i) {
@@ -628,6 +638,7 @@ function go(i) {
   document.getElementById("counter").textContent = `${current + 1} / ${slides.length}`;
 }
 
+document.getElementById("home").onclick = () => go(0);
 document.getElementById("prev").onclick = () => go(current - 1);
 document.getElementById("next").onclick = () => go(current + 1);
 document.addEventListener("keydown", (e) => {
