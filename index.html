@@ -212,6 +212,18 @@
     z-index: 10;
   }
   #controls .counter { font-size: 12px; color: var(--paper-dim); margin-right: 4px; }
+  #goto {
+    width: 3em;
+    background: rgba(28, 25, 21, .85);
+    border: 1px solid var(--border);
+    color: var(--paper);
+    font-family: inherit;
+    font-size: 12px;
+    text-align: center;
+    padding: 6px 2px;
+    border-radius: 6px;
+  }
+  #goto:focus { outline: none; border-color: var(--accent); color: var(--accent); }
   .arrow-btn {
     width: 42px;
     height: 42px;
@@ -236,7 +248,7 @@
 <main id="deck"></main>
 
 <div id="controls">
-  <span class="counter" id="counter"></span>
+  <span class="counter">slide <input id="goto" inputmode="numeric" title="Type a slide number and press Enter"> / <span id="total"></span></span>
   <button class="arrow-btn" id="home" title="Home (⌂)">⌂</button>
   <button class="arrow-btn" id="prev" title="Previous (←)">←</button>
   <button class="arrow-btn" id="next" title="Next (→)">→</button>
@@ -1142,8 +1154,14 @@ const deck = document.getElementById("deck");
 const slides = [];
 let current = 0;
 
-function addSlide(el) {
+function slugify(s) {
+  return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/^\d+\.\s*/, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+function addSlide(el, slug) {
   el.classList.add("slide");
+  if (slug) el.dataset.slug = slug;
   deck.appendChild(el);
   slides.push(el);
 }
@@ -1170,7 +1188,7 @@ cover.innerHTML = `
     </div>
   </div>
   <div class="cover-hint">Use ← → keys or the arrows to navigate</div>`;
-addSlide(cover);
+addSlide(cover, "home");
 
 // Parallax: camadas se movem sutilmente com o mouse, mais rápido quanto mais à frente
 const plxLayers = cover.querySelectorAll(".plx[data-depth]");
@@ -1190,19 +1208,18 @@ const howto = document.createElement("section");
 howto.className = "cover";
 howto.innerHTML = `<img src="assets/how-to-create-slides.gif" alt="How to create slides with Gemini Notebook">
   <div class="cover-hint">how-to create slides with Gemini Notebook!</div>`;
-addSlide(howto);
+addSlide(howto, "how-to");
 
 // ---------- Section 1: Content Prompts ----------
-function sectionCover(num, title, subtitle) {
+function sectionCover(num, title, subtitle, slug) {
   const s = document.createElement("section");
   s.className = "section-cover";
   s.innerHTML = `<div class="sec-num">${num}</div><h2>${title}</h2><p>${subtitle}</p>`;
-  addSlide(s);
+  addSlide(s, slug);
 }
 
 const contentStart = slides.length;
-sectionCover("Section 1", "Content Prompts",
-  "The what of a deck — audience, argument, slide sequence. Pair one with a design template from Section 2, which supplies the how it looks.");
+
 
 // Intro: how to use content prompts
 const intro = document.createElement("section");
@@ -1216,7 +1233,7 @@ intro.innerHTML = `<div class="intro-box">
     <li><strong>Treat these as starting points.</strong> The conventions here come from third-party guides and general presentation practice, not controlled testing. Test against your own sources.</li>
   </ul>
 </div>`;
-addSlide(intro);
+addSlide(intro, "using-content-prompts");
 
 // Content prompt slides
 for (const c of CONTENT_PROMPTS) {
@@ -1243,13 +1260,12 @@ for (const c of CONTENT_PROMPTS) {
       setTimeout(() => (e.target.textContent = "Copy"), 1500);
     });
   };
-  addSlide(s);
+  addSlide(s, slugify(c.title));
 }
 
 // ---------- Section 2: Design Templates ----------
 const designStart = slides.length;
-sectionCover("Section 2", "Design Templates",
-  "The how of a deck — palette, typography, layout language. Pick a visual world and paste its prompt after your content prompt.");
+sectionCover("Section 2", "Design Templates",   "The how of a deck — palette, typography, layout language. Pick a visual world and paste its prompt after your content prompt.", "design-templates");
 
 // Template slides
 for (const t of TEMPLATES) {
@@ -1277,7 +1293,7 @@ for (const t of TEMPLATES) {
       setTimeout(() => (e.target.textContent = "Copy"), 1500);
     });
   };
-  addSlide(s);
+  addSlide(s, slugify(t.title));
 }
 
 // Sources
@@ -1289,12 +1305,23 @@ src.innerHTML = `<h2>Sources</h2>` +
      This is a living collection — more templates will be added over time.</p>
    <button class="copy-btn" id="back-home" style="margin-top:20px;padding:10px 22px;font-size:13px">⌂ Back to home</button>`;
 src.querySelector("#back-home").onclick = () => go(0);
-addSlide(src);
+addSlide(src, "sources");
 
 function go(i) {
   current = Math.max(0, Math.min(slides.length - 1, i));
   slides.forEach((s, k) => s.classList.toggle("active", k === current));
-  document.getElementById("counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("goto").value = current + 1;
+  document.getElementById("total").textContent = slides.length;
+  const slug = slides[current].dataset.slug;
+  if (slug) history.replaceState(null, "", "#" + slug);
+}
+
+function slideFromHash() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (!h) return 0;
+  if (/^\d+$/.test(h)) return Math.min(slides.length, Math.max(1, +h)) - 1;
+  const i = slides.findIndex((s) => s.dataset.slug === h);
+  return i >= 0 ? i : 0;
 }
 
 document.getElementById("home").onclick = () => go(0);
@@ -1303,13 +1330,28 @@ document.getElementById("hs-slides").onclick = () => go(designStart);
 document.getElementById("prev").onclick = () => go(current - 1);
 document.getElementById("next").onclick = () => go(current + 1);
 document.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT") return;
   if (e.key === "ArrowRight" || e.key === "PageDown") go(current + 1);
   if (e.key === "ArrowLeft" || e.key === "PageUp") go(current - 1);
   if (e.key === "Home") go(0);
   if (e.key === "End") go(slides.length - 1);
 });
 
-go(0);
+const gotoEl = document.getElementById("goto");
+gotoEl.addEventListener("focus", () => gotoEl.select());
+gotoEl.addEventListener("keydown", (e) => {
+  e.stopPropagation();
+  if (e.key === "Enter") {
+    const v = parseInt(gotoEl.value, 10);
+    if (v) go(v - 1);
+    gotoEl.blur();
+  }
+  if (e.key === "Escape") gotoEl.blur();
+});
+gotoEl.addEventListener("blur", () => (gotoEl.value = current + 1));
+window.addEventListener("hashchange", () => go(slideFromHash()));
+
+go(slideFromHash());
 </script>
 </body>
 </html>
