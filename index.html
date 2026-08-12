@@ -126,27 +126,29 @@
     color: #d6cdb8;
   }
 
-  /* Cover shortcuts */
-  .cover-links {
+  /* Cover parallax */
+  .plx-stage {
+    position: relative;
+    width: min(100%, calc(100vh * (1672 / 941)));
+    aspect-ratio: 1672 / 941;
+    overflow: hidden;
+  }
+  .plx {
     position: absolute;
-    bottom: 72px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 14px;
+    inset: 0;
+    pointer-events: none;
+    transition: transform .18s ease-out;
+    will-change: transform;
   }
-  .cover-links button {
-    background: rgba(0,0,0,.78);
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: bold;
-    padding: 11px 22px;
-    border-radius: 24px;
+  .plx img { width: 100%; height: 100%; display: block; }
+  .hotspot {
+    position: absolute;
+    background: transparent;
+    border: none;
     cursor: pointer;
+    pointer-events: auto;
   }
-  .cover-links button:hover { background: var(--accent); color: #12100d; }
+  .plx:has(.hotspot:hover) { filter: drop-shadow(0 0 14px rgba(224, 168, 46, .75)); }
 
   /* Section cover slides */
   .slide.section-cover {
@@ -992,16 +994,42 @@ function addSlide(el) {
   slides.push(el);
 }
 
-// Cover
+// Cover (parallax em camadas; faixas "Slides/Content Templates" são clicáveis)
 const cover = document.createElement("section");
 cover.className = "cover";
-cover.innerHTML = `<img src="assets/cover.png" alt="Awesome Gemini Notebook Slides Templates">
-  <div class="cover-links">
-    <button id="jump-content">1 · Content Prompts</button>
-    <button id="jump-design">2 · Design Templates</button>
+cover.innerHTML = `
+  <div class="plx-stage" id="plx-stage">
+    <div class="plx" data-depth="0"><img src="assets/cover-l0-bg.png" alt="Awesome Gemini Notebook Slides Templates"></div>
+    <div class="plx" data-depth="10"><img src="assets/cover-l1-scraps.png" alt=""></div>
+    <div class="plx" data-depth="16"><img src="assets/cover-l2-stickers.png" alt=""></div>
+    <div class="plx" data-depth="22"><img src="assets/cover-l3-central.png" alt=""></div>
+    <div class="plx" data-depth="28"><img src="assets/cover-l4-title.png" alt=""></div>
+    <div class="plx" data-depth="34">
+      <img src="assets/cover-l5-slides.png" alt="">
+      <button class="hotspot" id="hs-slides" title="Go to Design Templates"
+        style="left:28.41%;top:70.88%;width:44.2%;height:14.03%"></button>
+    </div>
+    <div class="plx" data-depth="40">
+      <img src="assets/cover-l6-content.png" alt="">
+      <button class="hotspot" id="hs-content" title="Go to Content Prompts"
+        style="left:30.92%;top:81.19%;width:41.21%;height:12.65%"></button>
+    </div>
   </div>
   <div class="cover-hint">Use ← → keys or the arrows to navigate</div>`;
 addSlide(cover);
+
+// Parallax: camadas se movem sutilmente com o mouse, mais rápido quanto mais à frente
+const plxLayers = cover.querySelectorAll(".plx[data-depth]");
+cover.addEventListener("mousemove", (e) => {
+  const r = cover.querySelector("#plx-stage").getBoundingClientRect();
+  const dx = (e.clientX - r.left) / r.width - 0.5;
+  const dy = (e.clientY - r.top) / r.height - 0.5;
+  plxLayers.forEach((l) => {
+    const d = parseFloat(l.dataset.depth);
+    l.style.transform = `translate3d(${(-dx * d).toFixed(1)}px, ${(-dy * d).toFixed(1)}px, 0)`;
+  });
+});
+cover.addEventListener("mouseleave", () => plxLayers.forEach((l) => (l.style.transform = "")));
 
 // How-to (GIF)
 const howto = document.createElement("section");
@@ -1116,8 +1144,8 @@ function go(i) {
 }
 
 document.getElementById("home").onclick = () => go(0);
-document.getElementById("jump-content").onclick = () => go(contentStart);
-document.getElementById("jump-design").onclick = () => go(designStart);
+document.getElementById("hs-content").onclick = () => go(contentStart);
+document.getElementById("hs-slides").onclick = () => go(designStart);
 document.getElementById("prev").onclick = () => go(current - 1);
 document.getElementById("next").onclick = () => go(current + 1);
 document.addEventListener("keydown", (e) => {
