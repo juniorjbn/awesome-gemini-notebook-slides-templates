@@ -126,6 +126,76 @@
     color: #d6cdb8;
   }
 
+  /* Cover parallax */
+  .plx-stage {
+    position: relative;
+    width: min(100%, calc(100vh * (1672 / 941)));
+    aspect-ratio: 1672 / 941;
+    overflow: hidden;
+  }
+  .plx {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transition: transform .18s ease-out;
+    will-change: transform;
+  }
+  .plx img { width: 100%; height: 100%; display: block; }
+  .hotspot {
+    position: absolute;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+  .plx:has(.hotspot:hover) { filter: drop-shadow(0 0 14px rgba(224, 168, 46, .75)); }
+
+  /* Section cover slides */
+  .slide.section-cover {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+  }
+  .section-cover .sec-num {
+    font-size: 13px;
+    color: var(--paper-dim);
+    letter-spacing: 5px;
+    text-transform: uppercase;
+  }
+  .section-cover h2 { font-size: 44px; color: var(--accent); }
+  .section-cover p {
+    color: var(--paper-dim);
+    font-size: 14px;
+    max-width: 620px;
+    line-height: 1.7;
+  }
+
+  /* Intro slide (how to use content prompts) */
+  .slide.intro { flex-direction: column; justify-content: center; align-items: center; }
+  .intro-box { max-width: 780px; }
+  .intro-box h2 { color: var(--accent); font-size: 26px; margin-bottom: 18px; }
+  .intro-box li {
+    color: var(--paper);
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0 0 14px 20px;
+  }
+  .intro-box li strong { color: var(--accent); }
+
+  /* PAIR WITH chip on content prompt slides */
+  .pair-chip {
+    display: inline-block;
+    background: #2b261d;
+    border: 1px dashed var(--accent);
+    color: var(--accent);
+    font-size: 12px;
+    padding: 7px 14px;
+    border-radius: 6px;
+    margin-top: 12px;
+  }
+
   /* Sources slide */
   .slide.sources { flex-direction: column; justify-content: center; align-items: center; gap: 18px; }
   .slide.sources a { color: var(--accent); font-size: 15px; word-break: break-all; }
@@ -142,6 +212,18 @@
     z-index: 10;
   }
   #controls .counter { font-size: 12px; color: var(--paper-dim); margin-right: 4px; }
+  #goto {
+    width: 3em;
+    background: rgba(28, 25, 21, .85);
+    border: 1px solid var(--border);
+    color: var(--paper);
+    font-family: inherit;
+    font-size: 12px;
+    text-align: center;
+    padding: 6px 2px;
+    border-radius: 6px;
+  }
+  #goto:focus { outline: none; border-color: var(--accent); color: var(--accent); }
   .arrow-btn {
     width: 42px;
     height: 42px;
@@ -166,7 +248,7 @@
 <main id="deck"></main>
 
 <div id="controls">
-  <span class="counter" id="counter"></span>
+  <span class="counter">slide <input id="goto" inputmode="numeric" title="Type a slide number and press Enter"> / <span id="total"></span></span>
   <button class="arrow-btn" id="home" title="Home (⌂)">⌂</button>
   <button class="arrow-btn" id="prev" title="Previous (←)">←</button>
   <button class="arrow-btn" id="next" title="Next (→)">→</button>
@@ -558,6 +640,160 @@ const TEMPLATES = [
       "assets/gh-deformed-flat-persona-3.jpg"
     ],
     "prompt": "# Style:\n- Flat colors\n\n# Illustration:\n- A person with slightly deformed form\n- Thick outlines\n\n# Color:\n- Gentle tones with a bit of white mixed in\n- Up to 3 colors allowed\n\n# Outline:\n- Thick\n\n# Background:\n- Solid flat color with 1 color"
+  },
+  {
+    "group": "Dark & Atmospheric",
+    "title": "Aurora Stream",
+    "desc": "Flowing ribbons of blue and violet light on near-black — cinematic and premium",
+    "images": ["assets/aurora-stream-1.jpg", "assets/aurora-stream-2.jpg"],
+    "prompt": `STYLE: Aurora Stream. Cinematic dark presentation built around flowing ribbons of
+colored light against near-black space, like long-exposure silk caught mid-motion.
+
+CRITICAL COLOR RULE (non-negotiable): every slide background is near-black (#010005
+to #03183F), with no exceptions. Never use white, cream or any light background on
+any slide. No watercolor textures, no paper textures. If a slide looks bright or
+paper-like, it is wrong.
+
+COLOR PALETTE: Near-black base (#010005) deepening into midnight navy (#03183F).
+Light ribbons sweep through deep indigo (#2D1A6E), royal violet (#432475), electric
+blue (#2060A0) and pale cyan highlights (#70D0F0), with occasional magenta bloom at
+the brightest points. Body text in soft white; never pure saturated color on text.
+
+TYPOGRAPHY: Clean humanist sans throughout, no serifs. Titles at large scale in
+regular or light weight — the drama comes from the background, not from heavy type.
+Body text small, generously leaded, high contrast against the dark field.
+
+LAYOUT: Asymmetric. The light ribbon occupies one half or one diagonal of the slide
+and text sits in the calm dark region opposite it, never overlapping the brightest
+part of the gradient. Wide margins. Large areas of empty black are intentional.
+
+VISUAL ELEMENTS: Smooth volumetric gradients with soft falloff and subtle bloom.
+No hard edges, no geometric shapes, no icons, no borders, no lines under titles.
+Bulleted lists are plain, with small round markers.
+
+TONE: Premium, calm, slightly futuristic. Suited to product vision, brand narrative
+and keynote openings.`
+  },
+  {
+    "group": "Tech & Data",
+    "title": "Digital Velocity",
+    "desc": "Diagonal light trails and halftone dots on petrol navy, with cyan and amber accents",
+    "images": ["assets/digital-velocity-1.jpg", "assets/digital-velocity-2.jpg"],
+    "prompt": `STYLE: Digital Velocity. High-energy tech aesthetic built from diagonal light trails
+and halftone dot fields, evoking data in motion at speed.
+
+COLOR PALETTE: Deep petrol navy background (#0F2D40) shading to near-black
+(#001422). Two competing accents: cool cyan-teal (#2080A0) and warm amber orange
+(#E08040 through #C07040). Titles in amber, body copy in off-white. Keep the two
+accents in tension — roughly equal presence, neither one dominant.
+
+TYPOGRAPHY: Geometric sans. Titles medium-to-bold at large scale, set in amber.
+Body text light weight, small, off-white. Tight, disciplined type — the motion comes
+from the artwork.
+
+LAYOUT: Strong diagonal energy running lower-left to upper-right. Text blocks
+right-aligned or center-aligned within a clear column, sitting on the darkest
+region. Full-bleed background art with no framing or containers.
+
+VISUAL ELEMENTS: Streaks of directional light with motion blur, thin parallel
+speed lines, and clusters of halftone dots that fade out along the diagonal. Warm
+orange glints at the streak endpoints. No cards, no boxes, no accent bars, no icons.
+
+TONE: Fast, technical, confident. Suited to engineering roadmaps, platform launches
+and performance or infrastructure topics.`
+  },
+  {
+    "group": "Bold & Graphic",
+    "title": "Arcade Cut",
+    "desc": "Angular cut shapes over charcoal with a teal-to-cyan gradient — energetic and youthful",
+    "images": ["assets/arcade-cut-1.jpg", "assets/arcade-cut-2.jpg"],
+    "prompt": `STYLE: Arcade Cut. Bold graphic layout built from angular cut shapes slicing across
+a dark charcoal field, with a saturated teal-to-cyan gradient as the single accent.
+
+CRITICAL COLOR RULE (non-negotiable): every slide background is charcoal grey
+(#2F2C2E). The ONLY accent is the teal (#00B397) to cyan (#00AEC4) gradient. Never
+use blue, royal blue, navy or white backgrounds anywhere in the deck. If the deck
+looks blue and white, it is wrong.
+
+COLOR PALETTE: Charcoal grey base (#2F2C2E) with subtle diagonal pinstripe texture.
+One gradient accent running teal (#00B397) to cyan (#00AEC4), used on large solid
+shapes. Light grey (#D9D9D9) for small secondary bars. Text is white on the gradient
+and on the charcoal alike.
+
+TYPOGRAPHY: Clean sans, medium weight. Titles centered inside the gradient region at
+moderate scale. Body text small and light. Type stays plain so the shapes carry the
+design.
+
+LAYOUT: The slide is split by hard diagonal or stepped-notch edges into a gradient
+zone and a charcoal zone, with the split angle varying slide to slide. Content sits
+fully inside one zone. Photographs, when present, are masked into an angular panel
+on the opposite side.
+
+VISUAL ELEMENTS: Parallelogram and chevron-cut blocks, small floating rounded bars
+in light grey and teal scattered as accents, and a fine diagonal line texture over
+the charcoal. Sharp angles everywhere, no rounded cards, no drop shadows.
+
+TONE: Energetic, youthful, slightly competitive. Suited to gaming, esports, product
+launches and anything aimed at a younger audience.`
+  },
+  {
+    "group": "Education & Playful",
+    "title": "Quiz Club",
+    "desc": "Flat indigo, marigold and hot pink blocks with sticker shapes — built for quiz and lesson decks",
+    "images": ["assets/quiz-club-1.jpg", "assets/quiz-club-2.jpg"],
+    "prompt": `STYLE: Quiz Club. Playful editorial layout for interactive lessons and quiz decks,
+built on flat blocks of saturated color with sticker-like decorative marks.
+
+COLOR PALETTE: Periwinkle indigo (#5660F6) and deep navy (#0A0375) as the primary
+pair, marigold yellow (#FFBF5B) as the second field color, hot pink (#FD7EE3) for
+accents and stickers, and a cool off-white (#F1F3FF) for light slides. Text is deep
+navy on light fields and white on color fields.
+
+TYPOGRAPHY: Heavy bold sans for headings, tightly tracked, set large and left
+aligned, allowed to wrap across several lines. Small regular sans for answer options
+and captions. Big contrast between heading and body size.
+
+LAYOUT: Full-bleed color blocks and hard vertical splits — one half a photograph,
+the other half a flat color panel. Question decks use a lettered answer grid of
+outlined rectangles labeled A, B, C, D. Round divider slides carry an oversized
+numeral beside the round title.
+
+VISUAL ELEMENTS: Dotted grid patterns in the corners, starburst and asterisk shapes
+as stickers, thin vertical rule lines, and photographs placed as flat rectangles with
+no rounded corners. Small pill-shaped metadata strips for time, type and points.
+
+TONE: Bright, energetic, classroom-friendly. Suited to quizzes, workshops, training
+sessions and anything that needs audience participation.`
+  },
+  {
+    "group": "Business & Corporate",
+    "title": "Ember Pitch",
+    "desc": "White consulting layout with hairline cards and a red-to-orange accent — investor-ready",
+    "images": ["assets/ember-pitch-1.jpg", "assets/ember-pitch-2.jpg"],
+    "prompt": `STYLE: Ember Pitch. Clean corporate consulting layout on white, organized into
+hairline-bordered cards, with a single warm red-orange accent carrying all emphasis.
+
+COLOR PALETTE: White background (#FFFFFF) with pale grey panels (#F2F2F2). Accent
+gradient from red (#E71D36) to orange (#ED7D31), used on header markers, pill
+labels, chart series and callout numbers. Body text in charcoal (#3F3F3F), headings
+in near-black (#262626). Hairlines and inactive elements in light grey (#A5A5A5).
+
+TYPOGRAPHY: Geometric sans for headings in bold at moderate scale — Montserrat or
+similar. Humanist sans for body copy at small size. Slide titles sit on a single
+line at the top left beside a small colored marker, never centered.
+
+LAYOUT: Dense but orderly. Content divided into rectangular cards with thin grey
+borders, arranged in two-by-two or three-across grids. A thin rule separates the
+title band from the content area. Consistent margins, everything aligned to a grid.
+
+VISUAL ELEMENTS: Small pill-shaped labels in the accent gradient as card headers,
+donut charts, bar charts and concentric bubble charts in graded orange tints, dashed
+connector lines between diagram nodes, numbered circular badges, and clean data
+tables with an accent-colored header row. Business stock photography as a
+half-slide panel on statement slides.
+
+TONE: Professional, analytical, investor-ready. Suited to pitch decks, board
+updates, market analysis and financial reporting.`
   }
 ];
 
@@ -568,29 +804,468 @@ const SOURCES = [
     url: "https://github.com/serenakeyitan/awesome-notebookLM-prompts" },
 ];
 
+// ============================================================
+// CONTENT PROMPTS — a seção 1. Mesmo esquema: para adicionar,
+// acrescente um objeto { group, title, desc, pair, prompt }.
+// ============================================================
+const CONTENT_PROMPTS = [
+  {
+    group: "Business & Strategy",
+    title: "Executive Briefing",
+    desc: "Bottom line first for senior leadership: the conclusion, the factors that drive it, the risk, and the specific ask.",
+    pair: "Presenter Slides, short length",
+    prompt: `CONTENT: Executive briefing. Audience is senior leadership with limited time and no
+familiarity with the operational detail. They need to understand the situation and
+what decision or awareness is being asked of them.
+
+GOAL: Deliver the conclusion first and support it, rather than building toward it.
+
+STRUCTURE: Open with a single slide stating the bottom line — what is happening and
+what it means. Follow with the three or four factors that drive that conclusion, one
+per slide. Include one slide of supporting evidence or numbers. Include one slide on
+risk or what could change the picture. Close with the specific ask: decision needed,
+resource required, or simply acknowledgment.
+
+SLIDE RULES: Every slide title is a complete claim, not a topic label — write "Margin
+compression is driven by fulfillment, not pricing" rather than "Margin Analysis."
+Maximum four bullets per slide. No background or history slides unless the
+conclusion depends on them. Quantify wherever the source allows.
+
+TONE: Direct, confident, unhedged where the evidence is clear and explicitly
+uncertain where it is not.
+
+PAIR WITH: Presenter Slides, short length.`
+  },
+  {
+    group: "Business & Strategy",
+    title: "Investor Pitch",
+    desc: "Problem, solution, market and traction for investors who are pattern-matching fast and disengage quickly.",
+    pair: "Presenter Slides, default length",
+    prompt: `CONTENT: Investor pitch. Audience is investors evaluating whether this is worth their
+time and money. They are pattern-matching against many other opportunities and will
+disengage quickly if the problem is not obvious.
+
+GOAL: Establish that a real problem exists, that this solution is credible, and that
+the opportunity is large enough to matter.
+
+STRUCTURE: Follow the standard sequence — problem, solution, market size, business
+model, traction, competition, team, ask. Give the problem and traction more room than
+the rest. Put competition after traction, never before it.
+
+SLIDE RULES: One idea per slide. Lead the traction slide with the single strongest
+number available in the sources. Express market size as a build — total, addressable,
+obtainable — not a single figure. Where the sources lack a number, state the
+assumption openly rather than omitting the slide. No slide should require the reader
+to hold three things in mind at once.
+
+TONE: Confident and specific. Avoid superlatives and category-defining language;
+concrete numbers persuade, adjectives do not.
+
+PAIR WITH: Presenter Slides, default length.`
+  },
+  {
+    group: "Business & Strategy",
+    title: "Decision Memo",
+    desc: "Make the trade-offs legible, then recommend — with the criteria stated before the options.",
+    pair: "Detailed Deck, default length",
+    prompt: `CONTENT: Decision deck. Audience is a group that must choose between options and
+wants to see that the alternatives were considered seriously before the
+recommendation arrives.
+
+GOAL: Make the trade-offs legible, then recommend.
+
+STRUCTURE: Open with the decision being made and why it is being made now. State the
+criteria the options will be judged against before introducing the options. Give each
+option its own slide, described fairly and on its own terms. Follow with a comparison
+slide scoring every option against every criterion. Then the recommendation, with the
+reasoning that connects it to the criteria. Close with what would have to be true for
+the recommendation to be wrong.
+
+SLIDE RULES: Use a consistent structure for every option slide — same headings, same
+order — so they are genuinely comparable. Name the real cost of the recommended
+option; a recommendation with no downside reads as unexamined. The comparison slide
+should be a table or matrix, not prose.
+
+TONE: Analytical and even-handed through the options, decisive at the recommendation.
+
+PAIR WITH: Detailed Deck, default length.`
+  },
+  {
+    group: "Business & Strategy",
+    title: "Quarterly Business Review",
+    desc: "Honest reporting against commitments — misses before wins — and ranked priorities for the next period.",
+    pair: "Detailed Deck, default length",
+    prompt: `CONTENT: Period review. Audience is stakeholders who follow this work but were not
+inside it. They want to know whether the period went well, why, and what changes next.
+
+GOAL: Report honestly against commitments and set expectations for the next period.
+
+STRUCTURE: Open with a scorecard — each committed metric against its target, with a
+clear indicator of hit or missed. Follow with what drove the results that beat
+expectations, then what drove the misses. Include one slide on anything that changed
+in the operating environment. Close with priorities for the next period, ranked, with
+what is being dropped to make room.
+
+SLIDE RULES: Report misses before wins if the period was mixed — leading with wins
+after a bad quarter costs credibility. Every metric slide shows the target alongside
+the actual. Attribute causes only where the sources support the attribution; where a
+result is unexplained, say so. The priorities slide names trade-offs, not just
+additions.
+
+TONE: Plain and accountable. No spin in either direction.
+
+PAIR WITH: Detailed Deck, default length.`
+  },
+  {
+    group: "Product & Technical",
+    title: "Product Presentation",
+    desc: "Connect a problem the audience recognizes to a capability they can evaluate — outcomes in titles, mechanisms in bodies.",
+    pair: "Presenter Slides, default length",
+    prompt: `CONTENT: Product presentation. Audience is prospective users or buyers who understand
+their own problem but not this product.
+
+GOAL: Connect a problem they recognize to a capability they can evaluate.
+
+STRUCTURE: Open with the problem stated in the audience's language, not the product's.
+Introduce the product in one sentence a non-user could repeat accurately. Give each
+core capability its own slide, framed as the situation it resolves rather than the
+feature it is. Include one slide showing the product in use — a workflow, a before and
+after, or a concrete scenario. Address the obvious objection or limitation directly.
+Close with how to start.
+
+SLIDE RULES: Every capability slide names the user outcome in the title and the
+mechanism in the body, never the reverse. No feature lists without context. If the
+sources contain a customer example, give it a full slide. Avoid describing the product
+by comparison to competitors unless the sources do.
+
+TONE: Clear and grounded. Speak to what it does, not what it represents.
+
+PAIR WITH: Presenter Slides, default length.`
+  },
+  {
+    group: "Product & Technical",
+    title: "Technical Deep Dive",
+    desc: "How it works and why it was built that way — including the trade-offs — for engineers who find the weak point first.",
+    pair: "Detailed Deck, long length",
+    prompt: `CONTENT: Technical deep dive. Audience is engineers and architects who will evaluate
+the design on its merits and are unimpressed by claims without mechanism.
+
+GOAL: Explain how something works and why it was built that way, including what was
+given up.
+
+STRUCTURE: Open with the constraint or requirement that shaped the design. Present the
+architecture at a high level before decomposing it. Give significant components their
+own slides, covering responsibility, interface and failure behavior. Devote at least
+one slide to the alternatives considered and why they were rejected. Include the known
+limitations and the conditions under which the design breaks down. Close with
+operational implications — what running this actually requires.
+
+SLIDE RULES: Prefer diagrams to bullets for anything involving flow, hierarchy or
+sequence. Name specific technologies, versions and numbers where the sources provide
+them. State trade-offs as trade-offs, never as pure wins. Do not simplify away the
+part that is actually difficult.
+
+TONE: Precise and unmarketed. Assume the audience will find the weak point, and get
+there first.
+
+PAIR WITH: Detailed Deck, long length.`
+  },
+  {
+    group: "Product & Technical",
+    title: "Incident Post-Mortem",
+    desc: "Blameless timeline, contributing causes, and corrective actions with owners and dates.",
+    pair: "Detailed Deck, default length",
+    prompt: `CONTENT: Incident review. Audience is the team and its stakeholders, reviewing what
+happened in order to prevent recurrence.
+
+GOAL: Establish an accurate timeline, identify contributing causes, and commit to
+specific corrective action.
+
+STRUCTURE: Open with impact — what broke, for whom, for how long, measured. Follow
+with a timeline slide covering detection, escalation, mitigation and resolution, with
+timestamps. Then contributing factors, separated into what caused the failure and what
+delayed the response. Include what worked well in the response. Close with corrective
+actions, each with an owner and a date.
+
+SLIDE RULES: The timeline is factual and free of judgment. Describe systems and
+processes, never individuals — write "the alert routed to an unmonitored channel"
+rather than naming who configured it. Distinguish confirmed cause from hypothesis
+explicitly. Every corrective action is specific enough to be verifiable.
+
+TONE: Blameless, factual, unsparing about the system.
+
+PAIR WITH: Detailed Deck, default length.`
+  },
+  {
+    group: "Education & Explanation",
+    title: "Educational Lesson",
+    desc: "Concepts one per slide in dependency order, with worked examples and comprehension checks.",
+    pair: "Detailed Deck, long length",
+    prompt: `CONTENT: Teaching deck. Audience is learners encountering this material for the first
+time, in a classroom or training setting.
+
+GOAL: Build understanding in a deliberate order, checking comprehension as it goes.
+
+STRUCTURE: Open with what the learner will be able to do by the end. State any
+prerequisite knowledge. Introduce concepts one per slide, in dependency order — never
+use a term before defining it. Follow every two or three concept slides with a worked
+example. Include a comprehension check partway through and at the end. Close with a
+recap and where to go deeper.
+
+SLIDE RULES: One concept per slide, no exceptions. Every abstract idea is followed by
+a concrete instance. Define terms on first use, in place, not in a glossary. Questions
+have four labeled options with one clearly correct answer. Where the sources contain
+common misconceptions, address them directly.
+
+TONE: Patient and plain. Assume intelligence, assume no prior exposure.
+
+PAIR WITH: Detailed Deck, long length.`
+  },
+  {
+    group: "Education & Explanation",
+    title: "Explainer",
+    desc: "Make something complicated feel comprehensible without making it wrong — layers, analogies, misconceptions.",
+    pair: "Presenter Slides, default length",
+    prompt: `CONTENT: Explainer. Audience is generally capable people who are curious about this
+topic but have no stake in it and no obligation to keep reading.
+
+GOAL: Make something complicated feel comprehensible, without making it wrong.
+
+STRUCTURE: Open with the question the deck answers, phrased as someone would actually
+ask it. Establish why the answer is not obvious. Build the explanation in layers —
+the simple version first, then the complication, then the resolution. Use an analogy
+early and return to it. Include one slide on what people commonly get wrong. Close
+with what the reader now understands that they did not before.
+
+SLIDE RULES: Introduce jargon only when unavoidable, and translate it immediately.
+Where an analogy is imperfect, say where it breaks. Prefer one strong visual metaphor
+to several weak ones. No slide should exist purely to establish credentials or
+context.
+
+TONE: Curious and conversational. Explain, do not lecture.
+
+PAIR WITH: Presenter Slides, default length.`
+  },
+  {
+    group: "Education & Explanation",
+    title: "Onboarding & Training",
+    desc: "From unfamiliar to independently capable: numbered procedures, expected results, failure paths.",
+    pair: "Detailed Deck, long length",
+    prompt: `CONTENT: Onboarding deck. Audience is someone new to a role, tool or process who needs
+to become independently capable, not merely informed.
+
+GOAL: Move the reader from unfamiliar to able to do the thing without supervision.
+
+STRUCTURE: Open with what this covers and what it does not. State prerequisites and
+access requirements up front. Sequence the material as a progression from first task
+to routine competence. Give each procedure its own slide as ordered, numbered steps.
+Include the common mistakes and how to recover from them. Close with where to get help
+and what to learn next.
+
+SLIDE RULES: Procedures are numbered steps in imperative voice, never prose. State the
+expected result of each procedure so the reader can confirm success. Cover the failure
+path, not just the happy path. Never assume tacit knowledge — if a step requires
+knowing where something is, say where it is.
+
+TONE: Practical and reassuring. Written for someone who will follow it while doing the
+task.
+
+PAIR WITH: Detailed Deck, long length.`
+  },
+  {
+    group: "Research & Narrative",
+    title: "Research Findings",
+    desc: "What was found, how it was established, and how confident to be — findings ordered by strength of evidence.",
+    pair: "Detailed Deck, long length",
+    prompt: `CONTENT: Research presentation. Audience is peers or decision-makers who will judge
+the conclusions by the quality of the method.
+
+GOAL: Present what was found, how it was established, and how confident to be in it.
+
+STRUCTURE: Open with the question the research set out to answer. State the method and
+the data before the results. Present findings in order of strength of evidence, one
+per slide. Include a slide on limitations and threats to validity. Distinguish clearly
+between what the data shows and what it suggests. Close with implications and what
+remains unanswered.
+
+SLIDE RULES: Every finding slide names its evidence base in the title or a caption.
+Give sample sizes, ranges and uncertainty wherever the sources provide them. Never
+present a correlation in language that implies causation. Where a finding is
+preliminary, label it as preliminary on the slide itself.
+
+TONE: Measured and precise. Confidence proportional to evidence.
+
+PAIR WITH: Detailed Deck, long length.`
+  },
+  {
+    group: "Research & Narrative",
+    title: "Case Study",
+    desc: "One story told completely enough that the reader can judge its transferability — including what went wrong.",
+    pair: "Detailed Deck, default length",
+    prompt: `CONTENT: Case study. Audience is people evaluating whether an approach that worked
+elsewhere might work for them.
+
+GOAL: Tell one story completely enough that the reader can judge its transferability.
+
+STRUCTURE: Open with the subject and their situation before anything changed.
+Establish the problem in concrete terms, with its cost. Describe what was tried,
+including what was tried first and did not work. Present the results with the same
+metrics used to describe the problem. Include what made this case unusual — the
+conditions that may not generalize. Close with the transferable lesson.
+
+SLIDE RULES: Use the same metric to open and close, so the improvement is legible.
+Include at least one thing that went wrong; a frictionless case study is not
+believable. Name the timeframe. Distinguish what the subject did from what happened
+to them.
+
+TONE: Narrative and specific. One real story beats three summarized ones.
+
+PAIR WITH: Detailed Deck, default length.`
+  },
+  {
+    group: "Research & Narrative",
+    title: "Conference Talk",
+    desc: "Slides that carry weight without carrying the words — a hook, two or three movements, one repeatable takeaway.",
+    pair: "Presenter Slides, short length",
+    prompt: `CONTENT: Conference talk. Audience is a room of practitioners who chose this session
+over several others and will decide within two minutes whether that was a mistake.
+
+GOAL: Support a spoken argument with slides that carry weight without carrying the
+words.
+
+STRUCTURE: Open with a hook — a surprising number, a claim that contradicts common
+practice, or a concrete failure. Establish the tension the talk resolves. Build
+through two or three movements, each with a turn. Place the strongest technical
+content in the middle, where attention peaks. Close with one takeaway the audience can
+repeat to a colleague, and where to find more.
+
+SLIDE RULES: Minimal text — a slide is a visual aid, not a script. Many slides carry
+a single sentence, a single number, or a single image. Never put a paragraph on a
+slide. Break long lists across several slides rather than compressing them onto one.
+Assume the presenter says everything the slide does not.
+
+TONE: Energetic and opinionated. A talk with no position is a document read aloud.
+
+PAIR WITH: Presenter Slides, short length.`
+  }
+];
+
 const deck = document.getElementById("deck");
 const slides = [];
 let current = 0;
 
-function addSlide(el) {
+function slugify(s) {
+  return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/^\d+\.\s*/, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+function addSlide(el, slug) {
   el.classList.add("slide");
+  if (slug) el.dataset.slug = slug;
   deck.appendChild(el);
   slides.push(el);
 }
 
-// Cover
+// Cover (parallax em camadas; faixas "Slides/Content Templates" são clicáveis)
 const cover = document.createElement("section");
 cover.className = "cover";
-cover.innerHTML = `<img src="assets/cover.png" alt="Awesome Gemini Notebook Slides Templates">
+cover.innerHTML = `
+  <div class="plx-stage" id="plx-stage">
+    <div class="plx" data-depth="0"><img src="assets/cover-l0-bg.png" alt="Awesome Gemini Notebook Slides Templates"></div>
+    <div class="plx" data-depth="10"><img src="assets/cover-l1-scraps.png" alt=""></div>
+    <div class="plx" data-depth="16"><img src="assets/cover-l3-central.png" alt=""></div>
+    <div class="plx" data-depth="22"><img src="assets/cover-l4-title.png" alt=""></div>
+    <div class="plx" data-depth="28"><img src="assets/cover-l2-stickers.png" alt=""></div>
+    <div class="plx" data-depth="34">
+      <img src="assets/cover-l5-slides.png" alt="">
+      <button class="hotspot" id="hs-slides" title="Go to Design Templates"
+        style="left:28.41%;top:70.88%;width:44.2%;height:14.03%"></button>
+    </div>
+    <div class="plx" data-depth="40">
+      <img src="assets/cover-l6-content.png" alt="">
+      <button class="hotspot" id="hs-content" title="Go to Content Prompts"
+        style="left:30.92%;top:81.19%;width:41.21%;height:12.65%"></button>
+    </div>
+  </div>
   <div class="cover-hint">Use ← → keys or the arrows to navigate</div>`;
-addSlide(cover);
+addSlide(cover, "home");
+
+// Parallax: camadas se movem sutilmente com o mouse, mais rápido quanto mais à frente
+const plxLayers = cover.querySelectorAll(".plx[data-depth]");
+cover.addEventListener("mousemove", (e) => {
+  const r = cover.querySelector("#plx-stage").getBoundingClientRect();
+  const dx = (e.clientX - r.left) / r.width - 0.5;
+  const dy = (e.clientY - r.top) / r.height - 0.5;
+  plxLayers.forEach((l) => {
+    const d = parseFloat(l.dataset.depth);
+    l.style.transform = `translate3d(${(-dx * d).toFixed(1)}px, ${(-dy * d).toFixed(1)}px, 0)`;
+  });
+});
+cover.addEventListener("mouseleave", () => plxLayers.forEach((l) => (l.style.transform = "")));
 
 // How-to (GIF)
 const howto = document.createElement("section");
 howto.className = "cover";
 howto.innerHTML = `<img src="assets/how-to-create-slides.gif" alt="How to create slides with Gemini Notebook">
   <div class="cover-hint">how-to create slides with Gemini Notebook!</div>`;
-addSlide(howto);
+addSlide(howto, "how-to");
+
+// ---------- Section 1: Content Prompts ----------
+function sectionCover(num, title, subtitle, slug) {
+  const s = document.createElement("section");
+  s.className = "section-cover";
+  s.innerHTML = `<div class="sec-num">${num}</div><h2>${title}</h2><p>${subtitle}</p>`;
+  addSlide(s, slug);
+}
+
+const contentStart = slides.length;
+
+
+// Intro: how to use content prompts
+const intro = document.createElement("section");
+intro.className = "intro";
+intro.innerHTML = `<div class="intro-box">
+  <h2>How to use content prompts</h2>
+  <ul>
+    <li><strong>Combine, don't choose.</strong> Paste the content prompt first, then the design prompt, into the single custom prompt field in the Studio panel.</li>
+    <li><strong>Set the three dropdowns separately.</strong> Format (Detailed Deck / Presenter Slides), output language and length are interface controls, not prompt text. The PAIR WITH line on each prompt is a suggestion to click, not text to type.</li>
+    <li><strong>Expect to revise.</strong> Slide-level revision exists (pencil icon), but sources are not consulted during revision — factual corrections belong in a fresh generation.</li>
+    <li><strong>Treat these as starting points.</strong> The conventions here come from third-party guides and general presentation practice, not controlled testing. Test against your own sources.</li>
+  </ul>
+</div>`;
+addSlide(intro, "using-content-prompts");
+
+// Content prompt slides
+for (const c of CONTENT_PROMPTS) {
+  const s = document.createElement("section");
+  s.innerHTML = `
+    <div class="half images">
+      <div>
+        <div class="slide-group">${c.group}</div>
+        <div class="slide-title">${c.title}</div>
+        <div class="slide-desc">${c.desc}</div>
+        <div class="pair-chip">PAIR WITH: ${c.pair}</div>
+      </div>
+    </div>
+    <div class="half">
+      <div class="code-box">
+        <div class="code-head"><span>content prompt</span><button class="copy-btn">Copy</button></div>
+        <pre></pre>
+      </div>
+    </div>`;
+  s.querySelector("pre").textContent = c.prompt;
+  s.querySelector(".copy-btn").onclick = (e) => {
+    navigator.clipboard.writeText(c.prompt).then(() => {
+      e.target.textContent = "Copied!";
+      setTimeout(() => (e.target.textContent = "Copy"), 1500);
+    });
+  };
+  addSlide(s, slugify(c.title));
+}
+
+// ---------- Section 2: Design Templates ----------
+const designStart = slides.length;
+sectionCover("Section 2", "Design Templates",   "The how of a deck — palette, typography, layout language. Pick a visual world and paste its prompt after your content prompt.", "design-templates");
 
 // Template slides
 for (const t of TEMPLATES) {
@@ -618,7 +1293,7 @@ for (const t of TEMPLATES) {
       setTimeout(() => (e.target.textContent = "Copy"), 1500);
     });
   };
-  addSlide(s);
+  addSlide(s, slugify(t.title));
 }
 
 // Sources
@@ -630,25 +1305,53 @@ src.innerHTML = `<h2>Sources</h2>` +
      This is a living collection — more templates will be added over time.</p>
    <button class="copy-btn" id="back-home" style="margin-top:20px;padding:10px 22px;font-size:13px">⌂ Back to home</button>`;
 src.querySelector("#back-home").onclick = () => go(0);
-addSlide(src);
+addSlide(src, "sources");
 
 function go(i) {
   current = Math.max(0, Math.min(slides.length - 1, i));
   slides.forEach((s, k) => s.classList.toggle("active", k === current));
-  document.getElementById("counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("goto").value = current + 1;
+  document.getElementById("total").textContent = slides.length;
+  const slug = slides[current].dataset.slug;
+  if (slug) history.replaceState(null, "", "#" + slug);
+}
+
+function slideFromHash() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (!h) return 0;
+  if (/^\d+$/.test(h)) return Math.min(slides.length, Math.max(1, +h)) - 1;
+  const i = slides.findIndex((s) => s.dataset.slug === h);
+  return i >= 0 ? i : 0;
 }
 
 document.getElementById("home").onclick = () => go(0);
+document.getElementById("hs-content").onclick = () => go(contentStart);
+document.getElementById("hs-slides").onclick = () => go(designStart);
 document.getElementById("prev").onclick = () => go(current - 1);
 document.getElementById("next").onclick = () => go(current + 1);
 document.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT") return;
   if (e.key === "ArrowRight" || e.key === "PageDown") go(current + 1);
   if (e.key === "ArrowLeft" || e.key === "PageUp") go(current - 1);
   if (e.key === "Home") go(0);
   if (e.key === "End") go(slides.length - 1);
 });
 
-go(0);
+const gotoEl = document.getElementById("goto");
+gotoEl.addEventListener("focus", () => gotoEl.select());
+gotoEl.addEventListener("keydown", (e) => {
+  e.stopPropagation();
+  if (e.key === "Enter") {
+    const v = parseInt(gotoEl.value, 10);
+    if (v) go(v - 1);
+    gotoEl.blur();
+  }
+  if (e.key === "Escape") gotoEl.blur();
+});
+gotoEl.addEventListener("blur", () => (gotoEl.value = current + 1));
+window.addEventListener("hashchange", () => go(slideFromHash()));
+
+go(slideFromHash());
 </script>
 </body>
 </html>
