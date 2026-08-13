@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Awesome Gemini Notebook Slides Templates</title>
 <style>
   :root {
@@ -238,9 +238,39 @@
   .arrow-btn:hover { background: #2b261d; }
 
   @media (max-width: 900px) {
-    .slide.active { flex-direction: column; overflow-y: auto; }
+    /* O slide inteiro rola verticalmente; nada de scroll interno duplo */
+    .slide { padding: 18px 16px 96px; }
+    .slide.active { flex-direction: column; overflow-y: auto; gap: 18px; }
+    .slide.cover { padding: 0; }
     .half { width: 100%; }
-    .code-box pre { max-height: 50vh; }
+    .half.images { overflow: visible; }
+    .code-box { flex: none; }
+    .code-box pre { max-height: 55vh; }
+    .slide-title { font-size: 19px; }
+    .slide-desc { margin-bottom: 4px; }
+
+    /* Controles viram barra fixa de largura total, com fundo e safe-area */
+    #controls {
+      left: 0;
+      right: 0;
+      bottom: 0;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 22px max(14px, env(safe-area-inset-right))
+               max(12px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+      background: linear-gradient(transparent, rgba(18, 16, 13, .94) 40%);
+    }
+    .arrow-btn { width: 44px; height: 44px; }
+    #goto { padding: 10px 2px; }
+
+    /* Redundante no mobile (as setas estão sempre visíveis) e sobrepõe a barra */
+    .cover-hint { display: none; }
+
+    .section-cover h2 { font-size: 30px; }
+    .section-cover p { font-size: 13px; padding: 0 6px; }
+    .intro-box h2 { font-size: 20px; }
+    .intro-box li { font-size: 13px; }
+    .slide.sources a { font-size: 13px; text-align: center; }
   }
 </style>
 </head>
