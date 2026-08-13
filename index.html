@@ -151,6 +151,19 @@
   }
   .plx:has(.hotspot:hover) { filter: drop-shadow(0 0 14px rgba(224, 168, 46, .75)); }
 
+  /* Palco vertical (capa mobile): mesmo pipeline, proporção 1080×1920 */
+  .plx-stage.vertical {
+    display: none;
+    width: min(100%, calc(100vh * (1080 / 1920)));
+    width: min(100%, calc(100dvh * (1080 / 1920)));
+    aspect-ratio: 1080 / 1920;
+    touch-action: none;
+  }
+  @media (max-width: 900px) {
+    #plx-stage { display: none; }
+    .plx-stage.vertical { display: block; }
+  }
+
   /* Section cover slides */
   .slide.section-cover {
     flex-direction: column;
@@ -1230,21 +1243,77 @@ cover.innerHTML = `
         style="left:75.78%;top:79.06%;width:10.94%;height:19.34%"></a>
     </div>
   </div>
+  <div class="plx-stage vertical" id="plx-stage-m">
+    <div class="plx" data-depth="0"><img src="assets/cover-m0-bg.png" alt="Awesome Gemini Notebook Slides Templates"></div>
+    <div class="plx" data-depth="6"><img src="assets/cover-m1-scraps.png" alt=""></div>
+    <div class="plx" data-depth="10"><img src="assets/cover-m3-central.png" alt=""></div>
+    <div class="plx" data-depth="14"><img src="assets/cover-m4-title.png" alt=""></div>
+    <div class="plx" data-depth="18"><img src="assets/cover-m2-stickers.png" alt=""></div>
+    <div class="plx" data-depth="22">
+      <img src="assets/cover-m5-slides.png" alt="">
+      <button class="hotspot" id="hs-slides-m" title="Go to Design Templates"
+        style="left:21.11%;top:64.58%;width:62.41%;height:6.3%"></button>
+    </div>
+    <div class="plx" data-depth="26">
+      <img src="assets/cover-m6-content.png" alt="">
+      <button class="hotspot" id="hs-content-m" title="Go to Content Prompts"
+        style="left:24.63%;top:69.22%;width:58.24%;height:5.68%"></button>
+    </div>
+    <div class="plx" data-depth="30">
+      <img src="assets/cover-m7-me.png" alt="">
+      <a class="hotspot" href="https://linktr.ee/juniorjbn" target="_blank" rel="noopener"
+        title="linktr.ee/juniorjbn"
+        style="left:10.65%;top:33.75%;width:15.93%;height:10.83%"></a>
+    </div>
+    <div class="plx" data-depth="34">
+      <img src="assets/cover-m8-github.png" alt="">
+      <a class="hotspot" href="https://github.com/juniorjbn/awesome-gemini-notebook-slides-templates#awesome-gemini-notebook-slides-templates" target="_blank" rel="noopener"
+        title="View on GitHub"
+        style="left:62.59%;top:86.93%;width:20.09%;height:11.25%"></a>
+    </div>
+  </div>
   <div class="cover-hint">Use ← → keys or the arrows to navigate</div>`;
 addSlide(cover, "home");
 
-// Parallax: camadas se movem sutilmente com o mouse, mais rápido quanto mais à frente
+// Parallax: mouse no desktop; toque e giroscópio (quando livre de permissão) no mobile
 const plxLayers = cover.querySelectorAll(".plx[data-depth]");
-cover.addEventListener("mousemove", (e) => {
-  const r = cover.querySelector("#plx-stage").getBoundingClientRect();
-  const dx = (e.clientX - r.left) / r.width - 0.5;
-  const dy = (e.clientY - r.top) / r.height - 0.5;
+
+function activeStage() {
+  const m = cover.querySelector("#plx-stage-m");
+  return getComputedStyle(m).display !== "none" ? m : cover.querySelector("#plx-stage");
+}
+
+function applyParallax(dx, dy) {
   plxLayers.forEach((l) => {
     const d = parseFloat(l.dataset.depth);
     l.style.transform = `translate3d(${(-dx * d).toFixed(1)}px, ${(-dy * d).toFixed(1)}px, 0)`;
   });
-});
+}
+
+function pointParallax(clientX, clientY) {
+  const r = activeStage().getBoundingClientRect();
+  applyParallax(clientX / Math.max(r.width, 1) - 0.5 - r.left / Math.max(r.width, 1),
+                clientY / Math.max(r.height, 1) - 0.5 - r.top / Math.max(r.height, 1));
+}
+
+cover.addEventListener("mousemove", (e) => pointParallax(e.clientX, e.clientY));
 cover.addEventListener("mouseleave", () => plxLayers.forEach((l) => (l.style.transform = "")));
+cover.addEventListener("touchmove", (e) => {
+  if (e.touches.length === 1) pointParallax(e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: true });
+
+// Giroscópio: só onde não exige prompt de permissão (Android); no iOS fica o toque
+if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission !== "function") {
+  let baseBeta = null;
+  window.addEventListener("deviceorientation", (e) => {
+    if (e.beta == null || e.gamma == null) return;
+    if (getComputedStyle(cover.querySelector("#plx-stage-m")).display === "none") return;
+    if (baseBeta === null) baseBeta = e.beta;
+    const dx = Math.max(-0.5, Math.min(0.5, e.gamma / 60));
+    const dy = Math.max(-0.5, Math.min(0.5, (e.beta - baseBeta) / 60));
+    applyParallax(dx, dy);
+  });
+}
 
 // How-to (GIF)
 const howto = document.createElement("section");
@@ -1371,6 +1440,8 @@ function slideFromHash() {
 document.getElementById("home").onclick = () => go(0);
 document.getElementById("hs-content").onclick = () => go(contentStart);
 document.getElementById("hs-slides").onclick = () => go(designStart);
+document.getElementById("hs-content-m").onclick = () => go(contentStart);
+document.getElementById("hs-slides-m").onclick = () => go(designStart);
 document.getElementById("prev").onclick = () => go(current - 1);
 document.getElementById("next").onclick = () => go(current + 1);
 document.addEventListener("keydown", (e) => {
